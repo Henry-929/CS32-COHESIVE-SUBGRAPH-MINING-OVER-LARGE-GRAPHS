@@ -10,8 +10,8 @@ public class CSearch {
     int[] peer_seq, degree, core, pstart, edges;
 
 
-    public Map<Integer, Set<Integer>> loadGraph(String path) throws FileNotFoundException {
-        Map<Integer, Set<Integer>> G = new HashMap<>();
+    public Map<Integer, ArrayList<Integer>> loadGraph(String path) throws FileNotFoundException {
+        Map<Integer, ArrayList<Integer>> G = new HashMap<>();
 
         Scanner sc = new Scanner(new BufferedReader(new FileReader(path)));
         String str = sc.nextLine();
@@ -20,7 +20,7 @@ public class CSearch {
         m = Integer.valueOf(s[1]);
 
         while (sc.hasNextLine()) {
-            Set<Integer> set = new HashSet<>();
+            ArrayList<Integer> set = new ArrayList<>();
 
             String str2 = sc.nextLine();
             String[] s2 = str2.split("\\s+");
@@ -77,7 +77,7 @@ public class CSearch {
         return G;
     }
 
-    public void coreDecompositionLinearList(Map<Integer, Set<Integer>> G){
+    public void coreDecompositionLinearList(Map<Integer, ArrayList<Integer>> G){
         int max_core = 0;
         int u = 0;
         int key = 0;
@@ -99,7 +99,7 @@ public class CSearch {
             }
         }
 
-        System.out.println("The peeling sequence, i.e., degenerqcy order (即：每个点被删除的顺序)：");
+        System.out.println("The peeling sequence, i.e., degeneracy order (即：每个点被删除的顺序)：");
         for(int i = 0; i < n; i++)
             System.out.print(peer_seq[i]+", ");
         System.out.println("The core number of each vertex: ");
@@ -112,7 +112,7 @@ public class CSearch {
         long startTime =  System.currentTimeMillis();
 
         CSearch search = new CSearch();
-        Map<Integer, Set<Integer>> G = search.loadGraph("/Users/mac/Desktop/master材料/USYD/5703/core_decomp/fb.txt");
+        Map<Integer, ArrayList<Integer>> G = search.loadGraph("/Users/mac/Desktop/master材料/USYD/5703/core_decomp/fb.txt");
         search.coreDecompositionLinearList(G);
 
         long endTime =  System.currentTimeMillis();
