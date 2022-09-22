@@ -133,7 +133,7 @@ public class CSearch2 {
         long startTime =  System.currentTimeMillis();
 
         CSearch2 search = new CSearch2();
-        Map<Integer, Set<Integer>> G = search.loadGraph("/Users/mac/Desktop/master材料/USYD/5703/core_decomp/toy1.txt");
+        Map<Integer, Set<Integer>> G = search.loadGraph("data/fb.txt");
         search.coreDecompositionLinearList(G);
 
         long endTime =  System.currentTimeMillis();
