@@ -1,4 +1,6 @@
-package kcore;
+package kcore.decomposition;
+
+import kcore.ListLinearHeap;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -112,11 +114,11 @@ public class CSearch {
         long startTime =  System.currentTimeMillis();
 
         CSearch search = new CSearch();
-        Map<Integer, ArrayList<Integer>> G = search.loadGraph("/Users/mac/Desktop/master材料/USYD/5703/core_decomp/fb.txt");
+        Map<Integer, ArrayList<Integer>> G = search.loadGraph("decomposition/data/toy1.txt"); // use a GitHub path
         search.coreDecompositionLinearList(G);
 
         long endTime =  System.currentTimeMillis();
         long usedTime = endTime-startTime;
-        System.out.println(usedTime);
+        System.out.println("Time consuming: " + usedTime);
     }
 }
