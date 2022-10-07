@@ -1,0 +1,54 @@
+
+#Input: A graph G = (V, E), a set of query nodes Q⊆VH, a number d be distance constraint
+#Output: Induced subgraph H = (VH, EH)
+
+
+
+Function getDegree():
+	let d(G,v) be degree of node v in graph G
+	for each v ∈ V do:
+		Let d(v) be degree of v in G;
+
+Function setDegreeList():
+	getDegree();
+	for i <- 1 to len(n) do:
+		d[i] = {append all node with d(v) = i}
+
+Function ifNeighbor(Q):
+	for i <- 0 to len(Q) do:
+			if q[i] = (Q,q[i]) is neighbor of q[i+1] = QG, q[i+1]):
+				continue;
+			else break; #查询节点Q不再连接时终止算法
+
+3  seq ← 0, t ← 0;
+#------
+4  while E(Vt) != ∅ do  //E(Vt)表示当前t步骤时查询节点Q之间不在连接
+#------	
+5    t ← t + 1
+6    u ← argminv∈V\seq d(v);   //u表示当前最小度节点
+7    Add u to the tail of seq;
+8    If u = Qv then break;     //若u = 查询节点中的一个点q，则循环停止，找到了满足 Maximizing the minimum 	 
+                               //degree的图。
+9    for each neighbor v of u that is not in seq do
+10      d(v) ← d(v)−1;
+
+#-------
+11   Gt ← (Vt \ {u}, E(Vt \ {u}));    //从当前t步骤时图Gt中删除节点u以及相关边的关系， 存入seq
+
+#不需要---
+12 seqD ← 0, y ← 0;	    //此时已获得了Maximizing the minimum degree的图，但是可能存在非相关社区节点。
+13 while dGy(v, Qv) >= d do   //在Maximizing the minimum degree的图的基础上过滤掉大于距离搜索节点Qv为d的						
+			     //节点。
+14   y ← y + 1
+15   x ← maxq∈QvdH(v, q)	     // x表示当前图Gy离搜索节点Qv距离最远的节点
+16   for each neighbor v of x that is not in seqD do
+17      d(v) ← d(v)−1;
+18   Gy ← (Vy \ {x}, E(Vy \ {x}));
+#------
+
+fm(H) is maximized;
+
+solution <- 0;
+for each v ∈ V do:
+	  if v is not <- seq[]:
+		Add v <- solution; 
