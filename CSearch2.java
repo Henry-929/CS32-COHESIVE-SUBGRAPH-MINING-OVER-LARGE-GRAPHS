@@ -1,4 +1,4 @@
-package kcore;
+package kcore.decomposition;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -87,9 +87,7 @@ public class CSearch2 {
             ++bin[degree[v]];
         }
 
-        for(int i = dMax;i > 0;--i){
-            bin[i] = bin[i-1];
-        }
+        if (dMax >= 0) System.arraycopy(bin, 0, bin, 1, dMax);
         bin[0] = 0;
 
 //        System.out.println("vert[]: "+Arrays.toString(vert));
@@ -133,7 +131,7 @@ public class CSearch2 {
         long startTime =  System.currentTimeMillis();
 
         CSearch2 search = new CSearch2();
-        Map<Integer, Set<Integer>> G = search.loadGraph("data/fb.txt");
+        Map<Integer, Set<Integer>> G = search.loadGraph("decomposition/data/toy1.txt"); //change it into a GitHub path
         search.coreDecompositionLinearList(G);
 
         long endTime =  System.currentTimeMillis();
