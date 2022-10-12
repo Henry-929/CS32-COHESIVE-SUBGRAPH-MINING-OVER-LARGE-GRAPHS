@@ -170,9 +170,11 @@ public class Problem2 {
 
     }
 
-    // remove the target nodes and corresponding edges
-    // for-loop can be improved, but I cannot ^-^
-    // Who can try just try
+    /*
+    * remove the target nodes and corresponding edges
+    * for-loop can be improved, but I cannot ^-^
+    * Who can try just try
+    * */
     public void deleteNodeVersion2(int targetNode, Map<Integer, Set<Integer>> currentGraph){
         //remove the nodes
         currentGraph.remove(targetNode);
