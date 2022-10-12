@@ -1,4 +1,3 @@
-#problem 4 pseudo code
 #Input: A graph G = (V, E), a set of query nodes Q⊆VH, a number d be distance constraint
 #Output: Induced subgraph H = (VH, EH)
 Function getDegree(G: graph):
@@ -7,16 +6,6 @@ begin
 	for each v ∈ V do:
 		Let d(v) be degree of v in G;
 end;
-
-Function sizeConstraint():
-begin
-        get k value;
-        while:
-            if size >= k;
-            end;
-        end;
-end;
-
 Function setDegreeList():
 begin
 	getDegree();
@@ -50,7 +39,6 @@ begin
 		Gy := (Vy \ {v}, E(Vy \ {v}));				//从当前y步骤时图Gy中删除节点v以及相关边的关系
 	end;
 
-    sizeConstraint();
 
 	solution := 0;
 	for each v ∈ V do begin

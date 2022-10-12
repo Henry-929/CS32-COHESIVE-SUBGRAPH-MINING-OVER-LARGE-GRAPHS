@@ -69,6 +69,7 @@ public class Problem2 {
         System.out.println("n="+n+",m="+m+",dMAX="+dMax);
 
         // 返回图G 数据类型格式是：{(0,{1,2,3}),(1,{2,3})....} 表示点0 与 点1，2，3相邻（直接相连），点1 与点2，3相邻。
+        System.out.println("G: "+G);
         return G;
     }
 
@@ -76,7 +77,7 @@ public class Problem2 {
         int max_core = 0;
         int u = 0;
         int key = 0;
-        ListLinearHeap linearHeap = new ListLinearHeap(n,n-1,peer_seq,degree);
+        kcore.ListLinearHeap linearHeap = new kcore.ListLinearHeap(n,n-1,peer_seq,degree);
         for (int i=0;i<n;i++){
             HashMap<Integer,Integer> map = linearHeap.pop_min();
             for (Map.Entry<Integer,Integer> entry : map.entrySet()){
@@ -148,11 +149,16 @@ public class Problem2 {
         return distance;
     }
 
+    //从当前y步骤时图Gy中删除节点v以及相关边的关系
+    public void deleteNode(){
+
+    }
+
     public static void main(String[] args) throws FileNotFoundException {
         long startTime =  System.currentTimeMillis();
 
         Problem2 search = new Problem2();
-        Map<Integer, Set<Integer>> G = search.loadGraph("/Users/mac/Desktop/master材料/USYD/5703/core_decomp/demo.txt");
+        Map<Integer, Set<Integer>> G = search.loadGraph("/Users/rxia/Desktop/COMP5703  Capstone/code/CS32-COHESIVE-SUBGRAPH-MINING-OVER-LARGE-GRAPHS/data/toy1.txt");
 //        search.coreDecompositionLinearList(G);
 
         int distance = search.getDistance(5, 6, G);
@@ -160,7 +166,7 @@ public class Problem2 {
 
         long endTime =  System.currentTimeMillis();
         long usedTime = endTime-startTime;
-        System.out.println(usedTime);
+        System.out.println("used time: "+usedTime);
     }
 
 }
