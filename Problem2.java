@@ -190,8 +190,6 @@ public class Problem2 {
                 currentGraph.get(integer).remove(targetNode);
             }
         }
-        ArrayList<Integer> deleteSeq = new ArrayList<>();
-        deleteSeq.add(targetNode);
         System.out.println(targetNode+" is deleted this time.");
     }
 
