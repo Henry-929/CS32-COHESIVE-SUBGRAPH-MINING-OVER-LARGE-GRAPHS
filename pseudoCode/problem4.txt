@@ -1,5 +1,4 @@
-#problem 4 pseudo code
-#Input: A graph G = (V, E), a set of query nodes Q⊆VH, a number d be distance constraint
+#Input: A graph G = (V, E), a set of query nodes Q⊆VH, a number k be size constraint
 #Output: Induced subgraph H = (VH, EH)
 Function getDegree(G: graph):
 begin
@@ -7,55 +6,63 @@ begin
 	for each v ∈ V do:
 		Let d(v) be degree of v in G;
 end;
-
-Function sizeConstraint():
-begin
-        get k value;
-        while:
-            if size >= k;
-            end;
-        end;
-end;
-
 Function setDegreeList():
-begin
+begin	
 	getDegree();
 	for i := 1 to len(n) do:
 		d[i] = {append all node with d(v) = i};
 	end;
 end;
-Function isMaxMinDeg(Qv):
+
+Function isQNConnected();
 begin
-	for i := 0 to len(Qv) do:
-		if q[i] = (Q,q[i]) is neighbor of q[i+1] = QG, q[i+1]) do begin
-			continue;
-			else break;
+	for i:= 0 to len(Qv) - 1  do:
+		for j:= i+1 to len(Qv) do: 				//检查每两个query node是否连通
+			if( isConnected(Qv[i], Qv[j])) then: begin
+				continue;
+			else 
+				break;
+			end;
 		end;
 	end;
+end;
 
+Function isConnected(u, v):
+begin
+	dis = bfs(u, v); 						//用bfs计算两点的距离
+	if dis = INF then: begin						//如果距离为无限，返回-1
+		return -1;
+	else 
+		return dis;
+	end;	
+end;
+
+Function isMaxMinDeg(Qv):
+begin
 	seq := 0, t := 0;
-	while dGt(Qv) > 0 do  						//dGt(Qv) 表示当前t步骤时查询节点Q之间是否连接（即两点之间是否存在最短路径，采用BSF算法获取两点间的最短路径）
+	while dGt(Qv) > 0 do:  						//dGt(Qv) 表示当前t步骤时查询节点Q之间是否连接（即两点之间是否存在最短路径，采用BSF算法获取两点间的最短路径）
 		t := t + 1
 		u := argminv∈V\seq d(v);   				//u表示当前最小度节点
 		Add u to the tail of seq;
-		If u = Qv then break;     				//若u = 查询目标节点Qv中的一个点，表示至少有一个查询节点Q在图GT中具有最小程度，则循环停止，找到了满足 Maximizing the minimum degree的图。
-		for each neighbor v of u that is not in seq do begin	//表示将u的相邻节点度数-1，并重新排序节点度数
+		if u = Qv then: break;     				//若u = 查询目标节点Qv中的一个点，表示至少有一个查询节点Q在图GT中具有最小程度，则循环停止，找到了满足 Maximizing the minimum degree的图。				
+		for each neighbor v of u that is not in seq do: 		//表示将u的相邻节点度数-1，并重新排序节点度数
 			d(v) := d(v) − 1;
+		end;
 		Gt := (Vt \ {u}, E(Vt \ {u}));				//从当前t步骤时图Gt中删除节点u以及相关边的关系
 	end;
-
-	Gy := Gt, y := 0;	    					//从该行起开始计算 problem2中距离约束条件： DQ(H) ≤ d，因为此时Gt已经是满足 Maximizing the minimum degree的图，但是可能存在非相关社区节点。
-	while dGy(v, Qv) >= d do  					//dGy(v, Qv) 表示在图Gt的基础上任意一点v到搜索节点Qv间的最短路径距离，若该距离大于d，则删除结点v
+		
+	Gy := Gt, y := 0;	    				     //从该行起开始计算 problem4中大小约束条件： |VH| ≤ k (H has at most k nodes)，因为此时Gt已经是满足 Maximizing the minimum degree的图，但是可能存在非相关节点  
+	while VGy > k do:  						//VGy表示当前Gy中节点的数量
 		y := y + 1
-		Gy := (Vy \ {v}, E(Vy \ {v}));				//从当前y步骤时图Gy中删除节点v以及相关边的关系
+		p := argmaxv∈V\seq dGy(v, Qv);				//dGy(v, Qv) 表示在图Gt的基础上任意一点v到搜索节点Qv间的最短路径距离。 p表示当前距离搜索节点Qv距离最远节点。
+		Add p to the tail of seq;				
+		Gy := (Vy \ {p}, E(Vy \ {p}));				//从当前y步骤时图Gy中删除节点p以及相关边的关系
 	end;
 
-    sizeConstraint();
-
-	solution := 0;
-	for each v ∈ V do begin
-		if v is not <- seq[] then begin
-			Add v <- solution;
+	solution := 0;							//输出Gy中的节点。
+	for each v ∈ V do begin						
+		if v is not in seq[] then: begin
+			Add solution <- v; 
 		end;
 	end;
 end;
