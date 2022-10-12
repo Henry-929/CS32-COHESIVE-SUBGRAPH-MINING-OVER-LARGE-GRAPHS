@@ -150,7 +150,21 @@ public class Problem2 {
     }
 
     //从当前y步骤时图Gy中删除节点v以及相关边的关系
-    public void deleteNode(){
+    // add removed node to seq list
+    public void deleteNode(int v, Map<Integer, Set<Integer>> G){
+        List<Integer> seq = new ArrayList<Integer>();
+
+        kcore.ListLinearHeap linearHeap = new kcore.ListLinearHeap(n,n-1,peer_seq,degree);
+        G.remove(v);
+        linearHeap.remove(v);
+
+        for (int j=pstart[v]; j<pstart[v+1];j++){
+            if (core[edges[j]] == 0)
+                linearHeap.decrement(edges[j]);
+        }
+
+        seq.add(v);
+        System.out.println("Seq list: "+seq);
 
     }
 
@@ -163,6 +177,10 @@ public class Problem2 {
 
         int distance = search.getDistance(5, 6, G);
         System.out.println("图中点0-3的距离为 "+distance);
+
+        int v = 0;
+        search.deleteNode(v, G);
+        System.out.println("G now after remove node "+v+": "+"\n"+G);
 
         long endTime =  System.currentTimeMillis();
         long usedTime = endTime-startTime;
