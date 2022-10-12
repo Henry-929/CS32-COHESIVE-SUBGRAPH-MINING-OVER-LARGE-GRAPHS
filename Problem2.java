@@ -201,7 +201,7 @@ public class Problem2 {
         System.out.println("图中点0-3的距离为 "+distance);
 
         int v = 0;
-        search.deleteNode(v, G);
+        search.deleteNodeVersion2(v, G);
         System.out.println("G now after remove node "+v+": "+"\n"+G);
 
         long endTime =  System.currentTimeMillis();
