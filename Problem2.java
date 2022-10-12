@@ -1,4 +1,6 @@
-package kcore;
+package kcore.decomposition;
+
+import kcore.ListLinearHeap;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -168,11 +170,29 @@ public class Problem2 {
 
     }
 
+    // remove the target nodes and corresponding edges
+    // for-loop can be improved, but I cannot ^-^
+    // Who can try just try
+    public void deleteNodeVersion2(int targetNode, Map<Integer, Set<Integer>> currentGraph){
+        //remove the nodes
+        currentGraph.remove(targetNode);
+        // remove the edges
+        Set<Integer> integers = currentGraph.keySet();
+        for (Integer integer : integers) {
+            if (currentGraph.get(integer).contains(targetNode)){
+                currentGraph.get(integer).remove(targetNode);
+            }
+        }
+        ArrayList<Integer> deleteSeq = new ArrayList<>();
+        deleteSeq.add(targetNode);
+        System.out.println(targetNode+" is deleted this time.");
+    }
+
     public static void main(String[] args) throws FileNotFoundException {
         long startTime =  System.currentTimeMillis();
 
         Problem2 search = new Problem2();
-        Map<Integer, Set<Integer>> G = search.loadGraph("/Users/rxia/Desktop/COMP5703  Capstone/code/CS32-COHESIVE-SUBGRAPH-MINING-OVER-LARGE-GRAPHS/data/toy1.txt");
+        Map<Integer, Set<Integer>> G = search.loadGraph("data/toy1.txt"); //change the Absolute path into Relative path
 //        search.coreDecompositionLinearList(G);
 
         int distance = search.getDistance(5, 6, G);
