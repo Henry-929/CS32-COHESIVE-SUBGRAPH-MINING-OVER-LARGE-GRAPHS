@@ -124,18 +124,19 @@ public class Problem2 {
     }
 
     //检查查询节点之间的连接性
-    public boolean checkConnection(ArrayList<Integer> list, Map<Integer, Set<Integer>> G) {
+    public void checkConnection(ArrayList<Integer> list, Map<Integer, Set<Integer>> G) {
         for (int i = 0; i < list.size(); i++) {
             for (int j = 1; j < list.size(); j++) {
                 int d =  getDistance(list.get(i), list.get(j), G);
                 if (d == -1) {
-                    return false;
-                } else {
-                    return true;
+                    System.out.println(list.get(i) + " " + list.get(j));
+                    break;
+
+
                 }
             }
         }
-        return true;
+
     }
 
     public int getDistance(Integer p1, Integer p2, Map<Integer, Set<Integer>> G) {
@@ -232,7 +233,7 @@ public class Problem2 {
         long startTime =  System.currentTimeMillis();
 
         Problem2 search = new Problem2();
-        Map<Integer, Set<Integer>> G = search.loadGraph("data/toy1.txt"); //change the Absolute path into Relative path
+        Map<Integer, Set<Integer>> G = search.loadGraph("CS32-COHESIVE-SUBGRAPH-MINING-OVER-LARGE-GRAPHS/data/toy1.txt"); //change the Absolute path into Relative path
         ArrayList<Integer> list = search.loadQueryNode("CS32-COHESIVE-SUBGRAPH-MINING-OVER-LARGE-GRAPHS/data/QD1.txt");
         System.out.println(list);
 
@@ -242,8 +243,8 @@ public class Problem2 {
 
         int distance = search.getDistance(5, 6, G);
         System.out.println("图中点0-3的距离为 "+distance);
-        boolean distance1 = search.checkConnection(list, G);
-        System.out.println(distance1);
+        search.checkConnection(list, G);
+
 
         int v = 9;
         search.deleteNodeVersion2(v, G);
