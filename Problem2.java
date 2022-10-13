@@ -195,6 +195,11 @@ public class Problem2 {
         //remove the nodes
         currentGraph.remove(targetNode);
         linearHeap.remove(targetNode);
+//        delete degree
+        for (int j=pstart[targetNode]; j<pstart[targetNode+1];j++){
+            if (core[edges[j]] == 0)
+                linearHeap.decrement(edges[j]);
+        }
         // remove the edges
         Set<Integer> integers = currentGraph.keySet();
         for (Integer integer : integers) {
@@ -203,23 +208,20 @@ public class Problem2 {
                     deleteNode(integer, currentGraph);
                 } else {
                     currentGraph.get(integer).remove(targetNode);
-                    for (int j=pstart[targetNode]; j<pstart[targetNode+1];j++){
-                        if (core[edges[j]] == 0)
-                            linearHeap.decrement(edges[j]);
-                    }
+
                 }
             }
         }
 
         System.out.println(targetNode + " is deleted this time.");
-    }
+}
 
     public static void main(String[] args) throws FileNotFoundException {
         long startTime =  System.currentTimeMillis();
 
         Problem2 search = new Problem2();
-        Map<Integer, Set<Integer>> G = search.loadGraph("CS32-COHESIVE-SUBGRAPH-MINING-OVER-LARGE-GRAPHS/data/toy1.txt"); //change the Absolute path into Relative path
-        ArrayList<Integer> list = search.loadQueryNode("CS32-COHESIVE-SUBGRAPH-MINING-OVER-LARGE-GRAPHS/data/QD1.txt");
+        Map<Integer, Set<Integer>> G = search.loadGraph("/Users/rxia/Desktop/COMP5703  Capstone/code/CS32-COHESIVE-SUBGRAPH-MINING-OVER-LARGE-GRAPHS/data/toy1.txt"); //change the Absolute path into Relative path
+        ArrayList<Integer> list = search.loadQueryNode("/Users/rxia/Desktop/COMP5703  Capstone/code/CS32-COHESIVE-SUBGRAPH-MINING-OVER-LARGE-GRAPHS/data/QD1.txt");
         System.out.println(list);
 
 //        search.coreDecompositionLinearList(G);
