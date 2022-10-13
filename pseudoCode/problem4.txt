@@ -1,5 +1,6 @@
-#Input: A graph G = (V, E), a set of query nodes Q⊆VH, a number k be size constraint
+#Input: A graph G = (V, E), a set of query nodes Q⊆VH, a number k be size constraint, a number d as distance constraint
 #Output: Induced subgraph H = (VH, EH)
+
 Function getDegree(G: graph):
 begin
 	let d(G,v) be degree of node v in graph G
