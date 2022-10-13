@@ -150,50 +150,35 @@ public class Problem2 {
         return distance;
     }
 
-    //从当前y步骤时图Gy中删除节点v以及相关边的关系
-    // add removed node to seq list
-    public void deleteNode(int v, Map<Integer, Set<Integer>> G){
-        List<Integer> seq = new ArrayList<Integer>();
-
-        ListLinearHeap linearHeap = new ListLinearHeap(n,n-1,peer_seq,degree);
-        G.remove(v);
-        linearHeap.remove(v);
-
-        for (int j=pstart[v]; j<pstart[v+1];j++){
-            if (core[edges[j]] == 0)
-                linearHeap.decrement(edges[j]);
-        }
-
-        seq.add(v);
-        System.out.println("Seq list: "+seq);
-
-    }
 
 
     /**
-     * remove the target nodes and corresponding edges
-     * for-loop can be improved, but I cannot ^-^
-     * Who can try just try
-     * @autor Yifan
+     * 从当前y步骤时图Gy中删除节点v以及相关边的关系
      * @param targetNode the node to be deleted
      * @param currentGraph the current graph
-     * @return nothing
-     * @throws null
      */
-    public void deleteNodeVersion2(int targetNode, Map<Integer, Set<Integer>> currentGraph) {
+    public void deleteNode(int targetNode, Map<Integer, Set<Integer>> currentGraph) {
+
+        ListLinearHeap linearHeap = new ListLinearHeap(n,n-1,peer_seq,degree);
         //remove the nodes
         currentGraph.remove(targetNode);
+        linearHeap.remove(targetNode);
         // remove the edges
         Set<Integer> integers = currentGraph.keySet();
         for (Integer integer : integers) {
             if (currentGraph.get(integer).contains(targetNode)) {
                 if (currentGraph.get(integer).size() == 1) {
-                    deleteNodeVersion2(integer, currentGraph);
+                    deleteNode(integer, currentGraph);
                 } else {
                     currentGraph.get(integer).remove(targetNode);
+                    for (int j=pstart[targetNode]; j<pstart[targetNode+1];j++){
+                        if (core[edges[j]] == 0)
+                            linearHeap.decrement(edges[j]);
+                    }
                 }
             }
         }
+
         System.out.println(targetNode + " is deleted this time.");
     }
 
@@ -207,9 +192,13 @@ public class Problem2 {
         int distance = search.getDistance(5, 6, G);
         System.out.println("图中点0-3的距离为 "+distance);
 
-        int v = 9;
-        search.deleteNodeVersion2(v, G);
+        int v = 0;
+        search.deleteNode(v, G);
         System.out.println("G now after remove node "+v+": "+"\n"+G);
+        int v2 = 1;
+        search.deleteNode(v2, G);
+        System.out.println("G now after remove node "+v2+": "+"\n"+G);
+
 
         long endTime =  System.currentTimeMillis();
         long usedTime = endTime-startTime;
