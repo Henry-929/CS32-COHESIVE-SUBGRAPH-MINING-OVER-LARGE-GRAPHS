@@ -187,7 +187,11 @@ public class Problem2 {
         Set<Integer> integers = currentGraph.keySet();
         for (Integer integer : integers) {
             if (currentGraph.get(integer).contains(targetNode)){
+                if (currentGraph.get(integer).size()==1){
+                    currentGraph.remove(integer);
+                }else{
                 currentGraph.get(integer).remove(targetNode);
+                }
             }
         }
         System.out.println(targetNode+" is deleted this time.");
@@ -203,7 +207,7 @@ public class Problem2 {
         int distance = search.getDistance(5, 6, G);
         System.out.println("图中点0-3的距离为 "+distance);
 
-        int v = 0;
+        int v = 9;
         search.deleteNodeVersion2(v, G);
         System.out.println("G now after remove node "+v+": "+"\n"+G);
 
