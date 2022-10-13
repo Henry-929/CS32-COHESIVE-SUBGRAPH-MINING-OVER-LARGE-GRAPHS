@@ -124,18 +124,18 @@ public class Problem2 {
     }
 
     //检查查询节点之间的连接性
-    public void checkConnection(ArrayList<Integer> list, Map<Integer, Set<Integer>> G) {
+    public boolean checkConnection(ArrayList<Integer> list, Map<Integer, Set<Integer>> G) {
         for (int i = 0; i < list.size(); i++) {
             for (int j = 1; j < list.size(); j++) {
                 int d =  getDistance(list.get(i), list.get(j), G);
                 if (d == -1) {
                     System.out.println(list.get(i) + " " + list.get(j));
-                    break;
 
-
+                    return false;
                 }
             }
         }
+        return true;
 
     }
 
@@ -228,7 +228,8 @@ public class Problem2 {
 
         int distance = search.getDistance(5, 6, G);
         System.out.println("图中点0-3的距离为 "+distance);
-        search.checkConnection(list, G);
+        boolean distance1 = search.checkConnection(list, G);
+        System.out.println(distance1);
 
 
         int v = 0;
