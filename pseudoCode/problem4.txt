@@ -37,6 +37,15 @@ begin
 	end;	
 end;
 
+Function sizeConstraint(): //检查是否超出size constraint
+begin
+        get k value;
+        while:
+            if size >= k;
+            end;
+        end;
+end;
+
 Function isMaxMinDeg(Qv):
 begin
 	seq := 0, t := 0;
