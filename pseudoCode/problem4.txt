@@ -37,18 +37,18 @@ begin
 	end;	
 end;
 
-Function sizeConstraint(): //检查是否超出size constraint
+Function sizeConstraint(size): //检查是否超出size constraint
 begin
         get k value;
-        while:
-            if size >= k;
-            end;
+        assert(size >=k)
         end;
+
 end;
 
 Function isMaxMinDeg(Qv):
 begin
 	seq := 0, t := 0;
+	assert (sizeConstraint() := false);                 //判断是否超出size constraint
 	while dGt(Qv) > 0 do:  						//dGt(Qv) 表示当前t步骤时查询节点Q之间是否连接（即两点之间是否存在最短路径，采用BSF算法获取两点间的最短路径）
 		t := t + 1
 		u := argminv∈V\seq d(v);   				//u表示当前最小度节点
@@ -68,7 +68,7 @@ begin
 		Gy := (Vy \ {p}, E(Vy \ {p}));				//从当前y步骤时图Gy中删除节点p以及相关边的关系
 		Add p to the tail of seq;                   //把删除的节点存入seq
 	end;
-
+    if sizeConstraint()
 	solution := 0;							//输出Gy中的节点。
 	for each v ∈ V do begin						
 		if v is not in seq[] then: begin
