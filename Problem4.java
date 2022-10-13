@@ -235,7 +235,7 @@ public class Problem4 {
 
         //遍历找到每个节点到查询节点的最短路径距离
         for (Integer v : G.keySet()){
-            int disV = getDistance(queryN, v, G);//获取节点v到查询节点queryN 的最短路径距离
+            int disV = getDistance(queryN, v, G);//使用BSF算法，获取节点v到查询节点queryN 的最短路径距离
             if (disV == -1){
                 //将不相连节点距离设置为最大值，方便排序
                 disV = Integer.MAX_VALUE;
