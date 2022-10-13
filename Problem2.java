@@ -11,8 +11,8 @@ public class Problem2 {
     int[] peer_seq, degree, core, pstart, edges;
 
 
-    public Map<Integer, Set<Integer>> loadGraph(String path) throws FileNotFoundException {
-        Map<Integer, Set<Integer>> G = new HashMap<>();
+    public Map<Integer, ArrayList<Integer>> loadGraph(String path) throws FileNotFoundException {
+        Map<Integer, ArrayList<Integer>> G = new HashMap<>();
 
         Scanner sc = new Scanner(new BufferedReader(new FileReader(path)));
         String str = sc.nextLine();
@@ -21,7 +21,7 @@ public class Problem2 {
         m = Integer.valueOf(s[1]);
 
         while (sc.hasNextLine()) {
-            Set<Integer> set = new HashSet<>();
+            ArrayList<Integer> set = new ArrayList<>();
 
             String str2 = sc.nextLine();
             String[] s2 = str2.split("\\s+");
@@ -107,13 +107,13 @@ public class Problem2 {
 //        return null;
 //    }
 
-    public int getDistance(Integer p1, Integer p2, Map<Integer, Set<Integer>> G) {
+    public int getDistance(Integer p1, Integer p2, Map<Integer, ArrayList<Integer>> G) {
 
         Queue<Integer> queue = new LinkedList<Integer>(); // 队列，用于BFS搜素
         int distance = 0;
         Integer temp = 0;
         Integer queueEnd = 0;
-        Set<Integer> tempCol = new HashSet<>();
+        ArrayList<Integer> tempCol = new ArrayList<>();
         // visit数组（visit为标志是否访问过的数组,访问过为1，否则为0）
         int[] visit = new int[G.size()];
         // isQueueEnd标志节点i是否是某轮bfs广搜的终点，若是，其为true，,需要使distance++
@@ -124,7 +124,7 @@ public class Problem2 {
         visit[p1] = 1;
         isQueueEnd[p1]=true;
 
-        while (queue.peek() != p2) {
+        while (!Objects.equals(queue.peek(), p2)) {
             temp = queue.poll(); // 弹出并保存queue的头元素
             // 将与queue头元素直接相连，且未访问过的元素入队
 //            System.out.println("++++++++"+G.get(temp).size());
@@ -180,7 +180,7 @@ public class Problem2 {
      * @return nothing
      * @throws null
      */
-    public void deleteNodeVersion2(int targetNode, Map<Integer, Set<Integer>> currentGraph){
+    public void deleteNodeVersion2(int targetNode, Map<Integer, ArrayList<Integer>> currentGraph){
         //remove the nodes
         currentGraph.remove(targetNode);
         // remove the edges
@@ -198,7 +198,7 @@ public class Problem2 {
         long startTime =  System.currentTimeMillis();
 
         Problem2 search = new Problem2();
-        Map<Integer, Set<Integer>> G = search.loadGraph("data/toy1.txt"); //change the Absolute path into Relative path
+        Map<Integer, ArrayList<Integer>> G = search.loadGraph("data/toy1.txt"); //change the Absolute path into Relative path
 //        search.coreDecompositionLinearList(G);
 
         int distance = search.getDistance(5, 6, G);
