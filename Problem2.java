@@ -107,6 +107,37 @@ public class Problem2 {
 //        return null;
 //    }
 
+    //导入查询节点
+    public ArrayList<Integer> loadQueryNode(String path) throws FileNotFoundException {
+        ArrayList<Integer> list = new ArrayList<>();
+
+
+        Scanner sc = new Scanner(new BufferedReader(new FileReader(path)));
+        String str = sc.nextLine();
+        String[] s = str.split(",");
+        for (int i = 0; i < s.length; i++) {
+            list.add(Integer.valueOf(s[i]));
+        }
+
+        sc.close();
+        return list;
+    }
+
+    //检查查询节点之间的连接性
+    public boolean checkConnection(ArrayList<Integer> list, Map<Integer, Set<Integer>> G) {
+        for (int i = 0; i < list.size(); i++) {
+            for (int j = 1; j < list.size(); j++) {
+                int d =  getDistance(list.get(i), list.get(j), G);
+                if (d == -1) {
+                    return false;
+                } else {
+                    return true;
+                }
+            }
+        }
+        return true;
+    }
+
     public int getDistance(Integer p1, Integer p2, Map<Integer, Set<Integer>> G) {
 
         Queue<Integer> queue = new LinkedList<Integer>(); // 队列，用于BFS搜素
@@ -202,10 +233,17 @@ public class Problem2 {
 
         Problem2 search = new Problem2();
         Map<Integer, Set<Integer>> G = search.loadGraph("data/toy1.txt"); //change the Absolute path into Relative path
+        ArrayList<Integer> list = search.loadQueryNode("CS32-COHESIVE-SUBGRAPH-MINING-OVER-LARGE-GRAPHS/data/QD1.txt");
+        System.out.println(list);
+
 //        search.coreDecompositionLinearList(G);
+
+
 
         int distance = search.getDistance(5, 6, G);
         System.out.println("图中点0-3的距离为 "+distance);
+        boolean distance1 = search.checkConnection(list, G);
+        System.out.println(distance1);
 
         int v = 9;
         search.deleteNodeVersion2(v, G);
