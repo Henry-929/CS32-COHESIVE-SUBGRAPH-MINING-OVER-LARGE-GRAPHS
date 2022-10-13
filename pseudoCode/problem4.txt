@@ -58,7 +58,7 @@ begin
 			d(v) := d(v) − 1;
 		end;
 		Gt := (Vt \ {u}, E(Vt \ {u}));				//从当前t步骤时图Gt中删除节点u以及相关边的关系
-		Add u to the tail of seq;
+		Add u to the tail of seq;                   //把删除的节点存入seq
 	end;
 		
 	Gy := Gt, y := 0;	    				     //从该行起开始计算 problem4中大小约束条件： |VH| ≤ k (H has at most k nodes)，因为此时Gt已经是满足 Maximizing the minimum degree的图，但是可能存在非相关节点  
@@ -66,7 +66,7 @@ begin
 		y := y + 1
 		p := argmaxv∈V\seq dGy(v, Qv);				//dGy(v, Qv) 表示在图Gt的基础上任意一点v到搜索节点Qv间的最短路径距离。 p表示当前距离搜索节点Qv距离最远节点。
 		Gy := (Vy \ {p}, E(Vy \ {p}));				//从当前y步骤时图Gy中删除节点p以及相关边的关系
-		Add p to the tail of seq;
+		Add p to the tail of seq;                   //把删除的节点存入seq
 	end;
 
 	solution := 0;							//输出Gy中的节点。
