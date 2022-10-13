@@ -171,7 +171,7 @@ public class Problem4 {
         System.out.println(targetNode + " is deleted this time.");
     }
 
-    
+
     /**
      * 获取两个搜索节点间最短路径距离，用于判断两个搜索节点是否相连（采用BSF算法）
      * @param p1 一个搜索节点 query node
@@ -230,26 +230,29 @@ public class Problem4 {
      */
     public HashMap<String, Integer> getMaxDistance(int queryN, Map<Integer, Set<Integer>> G){
         HashMap<String, Integer> map = new HashMap<>();
-        int array[] = new int[G.size()];
-        int sort[] = new int[G.size()];
+        int array[] = new int[G.size()]; //用于存储每个节点距离查询节点的距离（index对应每个节点，value对应距离）
+        int sort[] = new int[G.size()];//用于存储排序后的距离值
 
+        //遍历找到每个节点到查询节点的最短路径距离
         for (Integer v : G.keySet()){
-            int disV = getDistance(queryN, v, G);
+            int disV = getDistance(queryN, v, G);//获取节点v到查询节点queryN 的最短路径距离
             if (disV == -1){
+                //将不相连节点距离设置为最大值，方便排序
                 disV = Integer.MAX_VALUE;
             }
             array[v] = disV;
         }
-        map.put("queryNode", queryN);
+        map.put("queryNode", queryN); //输出查询节点
         for (int i=0;i<sort.length;i++){
             sort[i] = array[i];
         }
+        //进行归并排序
         mergeSort(sort, 0, array.length-1);
 
         for (int i=0;i<array.length;i++){
             if (array[i] == sort[array.length-1]){
-                map.put("node", i);
-                map.put("maxDist", sort[array.length-1]);
+                map.put("node", i);//输出当前图中距离查询节点queryN最远距离的节点
+                map.put("maxDist", sort[array.length-1]);//输出当前图中距离查询节点queryN最远距离的节点的距离
             }
         }
         return map;
