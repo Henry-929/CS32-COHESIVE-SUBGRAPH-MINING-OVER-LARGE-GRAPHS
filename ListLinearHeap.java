@@ -1,4 +1,4 @@
-package kcore;
+package kcore.decomposition;
 import java.util.HashMap;
 
 public class ListLinearHeap {

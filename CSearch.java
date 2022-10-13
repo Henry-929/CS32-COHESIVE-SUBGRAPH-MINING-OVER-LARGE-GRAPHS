@@ -1,11 +1,12 @@
 package kcore.decomposition;
 
-import kcore.ListLinearHeap;
-
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Scanner;
 
 public class CSearch {
     Integer n,m;

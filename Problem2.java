@@ -1,6 +1,5 @@
 package kcore.decomposition;
 
-import kcore.ListLinearHeap;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -79,7 +78,7 @@ public class Problem2 {
         int max_core = 0;
         int u = 0;
         int key = 0;
-        kcore.ListLinearHeap linearHeap = new kcore.ListLinearHeap(n,n-1,peer_seq,degree);
+        ListLinearHeap linearHeap = new ListLinearHeap(n,n-1,peer_seq,degree);
         for (int i=0;i<n;i++){
             HashMap<Integer,Integer> map = linearHeap.pop_min();
             for (Map.Entry<Integer,Integer> entry : map.entrySet()){
@@ -156,7 +155,7 @@ public class Problem2 {
     public void deleteNode(int v, Map<Integer, Set<Integer>> G){
         List<Integer> seq = new ArrayList<Integer>();
 
-        kcore.ListLinearHeap linearHeap = new kcore.ListLinearHeap(n,n-1,peer_seq,degree);
+        ListLinearHeap linearHeap = new ListLinearHeap(n,n-1,peer_seq,degree);
         G.remove(v);
         linearHeap.remove(v);
 
@@ -175,6 +174,7 @@ public class Problem2 {
      * remove the target nodes and corresponding edges
      * for-loop can be improved, but I cannot ^-^
      * Who can try just try
+     * @autor Yifan
      * @param targetNode the node to be deleted
      * @param currentGraph the current graph
      * @return nothing
@@ -184,6 +184,7 @@ public class Problem2 {
         //remove the nodes
         currentGraph.remove(targetNode);
         // remove the edges
+
         Set<Integer> integers = currentGraph.keySet();
         for (Integer integer : integers) {
             if (currentGraph.get(integer).contains(targetNode)){
