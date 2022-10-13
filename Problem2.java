@@ -180,21 +180,21 @@ public class Problem2 {
      * @return nothing
      * @throws null
      */
-    public void deleteNodeVersion2(int targetNode, Map<Integer, Set<Integer>> currentGraph){
+    public void deleteNodeVersion2(int targetNode, Map<Integer, Set<Integer>> currentGraph) {
         //remove the nodes
         currentGraph.remove(targetNode);
         // remove the edges
         Set<Integer> integers = currentGraph.keySet();
         for (Integer integer : integers) {
-            if (currentGraph.get(integer).contains(targetNode)){
-                if (currentGraph.get(integer).size()==1){
+            if (currentGraph.get(integer).contains(targetNode)) {
+                if (currentGraph.get(integer).size() == 1) {
                     deleteNodeVersion2(integer, currentGraph);
-                }else{
-                currentGraph.get(integer).remove(targetNode);
+                } else {
+                    currentGraph.get(integer).remove(targetNode);
                 }
             }
         }
-        System.out.println(targetNode+" is deleted this time.");
+        System.out.println(targetNode + " is deleted this time.");
     }
 
     public static void main(String[] args) throws FileNotFoundException {
