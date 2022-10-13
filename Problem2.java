@@ -188,7 +188,7 @@ public class Problem2 {
         for (Integer integer : integers) {
             if (currentGraph.get(integer).contains(targetNode)){
                 if (currentGraph.get(integer).size()==1){
-                    currentGraph.remove(integer);
+                    deleteNodeVersion2(integer, currentGraph);
                 }else{
                 currentGraph.get(integer).remove(targetNode);
                 }
