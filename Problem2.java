@@ -229,7 +229,7 @@ public class Problem2 {
         long startTime =  System.currentTimeMillis();
 
         Problem2 search = new Problem2();
-        //不要再写相对路径了！！
+        //不要再写绝对路径了！！
         Map<Integer, Set<Integer>> G = search.loadGraph("data/toy1.txt"); //change the Absolute path into Relative path
         ArrayList<Integer> list = search.loadQueryNode("data/QD1.txt");
         System.out.println(list);
