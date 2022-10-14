@@ -201,7 +201,16 @@ public class Problem2 {
                 linearHeap.decrement(edges[j]);
         }
         // remove the edges
-        Set<Integer> integers = currentGraph.keySet();
+        for(Map.Entry<Integer,Set<Integer>> entry :currentGraph.entrySet()){
+            if(entry.getValue().contains(targetNode)){
+                if(entry.getValue().size()==1){
+                    deleteNode(entry.getKey(),currentGraph);
+                }else {
+                    entry.getValue().remove(targetNode);
+                }
+            }
+        }
+        /*Set<Integer> integers = currentGraph.keySet();
         for (Integer integer : integers) {
             if (currentGraph.get(integer).contains(targetNode)) {
                 if (currentGraph.get(integer).size() == 1) {
@@ -211,7 +220,7 @@ public class Problem2 {
 
                 }
             }
-        }
+        }*/
 
         System.out.println(targetNode + " is deleted this time.");
 }
@@ -220,8 +229,9 @@ public class Problem2 {
         long startTime =  System.currentTimeMillis();
 
         Problem2 search = new Problem2();
-        Map<Integer, Set<Integer>> G = search.loadGraph("/Users/rxia/Desktop/COMP5703  Capstone/code/CS32-COHESIVE-SUBGRAPH-MINING-OVER-LARGE-GRAPHS/data/toy1.txt"); //change the Absolute path into Relative path
-        ArrayList<Integer> list = search.loadQueryNode("/Users/rxia/Desktop/COMP5703  Capstone/code/CS32-COHESIVE-SUBGRAPH-MINING-OVER-LARGE-GRAPHS/data/QD1.txt");
+        //不要再写相对路径了！！
+        Map<Integer, Set<Integer>> G = search.loadGraph("data/toy1.txt"); //change the Absolute path into Relative path
+        ArrayList<Integer> list = search.loadQueryNode("data/QD1.txt");
         System.out.println(list);
 
 //        search.coreDecompositionLinearList(G);
@@ -234,7 +244,7 @@ public class Problem2 {
         System.out.println(distance1);
 
 
-        int v = 0;
+        int v = 9;
         search.deleteNode(v, G);
         System.out.println("G now after remove node "+v+": "+"\n"+G);
         int v2 = 1;
