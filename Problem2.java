@@ -200,27 +200,19 @@ public class Problem2 {
             if (core[edges[j]] == 0)
                 linearHeap.decrement(edges[j]);
         }
-        // remove the edges
-        for(Map.Entry<Integer,Set<Integer>> entry :currentGraph.entrySet()){
-            if(entry.getValue().contains(targetNode)){
-                if(entry.getValue().size()==1){
-                    deleteNode(entry.getKey(),currentGraph);
-                }else {
-                    entry.getValue().remove(targetNode);
-                }
-            }
-        }
-        /*Set<Integer> integers = currentGraph.keySet();
+//         remove the edges
+        Set<Integer> integers = currentGraph.keySet();
         for (Integer integer : integers) {
             if (currentGraph.get(integer).contains(targetNode)) {
-                if (currentGraph.get(integer).size() == 1) {
-                    deleteNode(integer, currentGraph);
-                } else {
-                    currentGraph.get(integer).remove(targetNode);
-
-                }
+                currentGraph.get(integer).remove(targetNode);
+//                if (currentGraph.get(integer).size() == 1) {
+//                    deleteNode(integer, currentGraph);
+//                } else {
+//                    currentGraph.get(integer).remove(targetNode);
+//
+//                }
             }
-        }*/
+        }
 
         System.out.println(targetNode + " is deleted this time.");
 }
@@ -230,11 +222,11 @@ public class Problem2 {
 
         Problem2 search = new Problem2();
         //不要再写绝对路径了！！
-        Map<Integer, Set<Integer>> G = search.loadGraph("data/toy1.txt"); //change the Absolute path into Relative path
+        Map<Integer, Set<Integer>> G = search.loadGraph("data/fb.txt"); //change the Absolute path into Relative path
         ArrayList<Integer> list = search.loadQueryNode("data/QD1.txt");
         System.out.println(list);
 
-//        search.coreDecompositionLinearList(G);
+        search.coreDecompositionLinearList(G);
 
 
 
@@ -243,13 +235,16 @@ public class Problem2 {
         boolean distance1 = search.checkConnection(list, G);
         System.out.println(distance1);
 
-
-        int v = 9;
-        search.deleteNode(v, G);
-        System.out.println("G now after remove node "+v+": "+"\n"+G);
-        int v2 = 1;
-        search.deleteNode(v2, G);
-        System.out.println("G now after remove node "+v2+": "+"\n"+G);
+        for(int v=1;v<4000;v++){
+            search.deleteNode(v, G);
+        }
+        System.out.println("G now after remove node: "+"\n"+G);
+//        int v = 9;
+//        search.deleteNode(v, G);
+//        System.out.println("G now after remove node "+v+": "+"\n"+G);
+//        int v2 = 8;
+//        search.deleteNode(v2, G);
+//        System.out.println("G now after remove node "+v2+": "+"\n"+G);
 
 
         long endTime =  System.currentTimeMillis();
