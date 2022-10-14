@@ -7,8 +7,13 @@ import java.io.FileReader;
 import java.util.*;
 
 public class Problem2 {
-    Integer n,m;
-    int[] peer_seq, degree, core, pstart, edges;
+    static Integer n;
+    Integer m;
+    static int[] peer_seq;
+    int[] degree;
+    int[] core;
+    int[] pstart;
+    int[] edges;
 
 
     public Map<Integer, Set<Integer>> loadGraph(String path) throws FileNotFoundException {
@@ -70,7 +75,7 @@ public class Problem2 {
         System.out.println("n="+n+",m="+m+",dMAX="+dMax);
 
         // 返回图G 数据类型格式是：{(0,{1,2,3}),(1,{2,3})....} 表示点0 与 点1，2，3相邻（直接相连），点1 与点2，3相邻。
-        System.out.println("G: "+G);
+//        System.out.println("G: "+G);
         return G;
     }
 
@@ -95,6 +100,8 @@ public class Problem2 {
                     linearHeap.decrement(edges[j]);
             }
         }
+
+
 
     }
 
@@ -129,7 +136,7 @@ public class Problem2 {
             for (int j = 1; j < list.size(); j++) {
                 int d =  getDistance(list.get(i), list.get(j), G);
                 if (d == -1) {
-                    System.out.println(list.get(i) + " " + list.get(j));
+//                    System.out.println(list.get(i) + " " + list.get(j));
 
                     return false;
                 }
@@ -196,10 +203,10 @@ public class Problem2 {
         currentGraph.remove(targetNode);
         linearHeap.remove(targetNode);
 //        delete degree
-        for (int j=pstart[targetNode]; j<pstart[targetNode+1];j++){
-            if (core[edges[j]] == 0)
-                linearHeap.decrement(edges[j]);
-        }
+//        for (int j=pstart[targetNode]; j<pstart[targetNode+1];j++){
+//            if (core[edges[j]] == 0)
+//                linearHeap.decrement(edges[j]);
+//        }
 //         remove the edges
         Set<Integer> integers = currentGraph.keySet();
         for (Integer integer : integers) {
@@ -217,39 +224,54 @@ public class Problem2 {
         System.out.println(targetNode + " is deleted this time.");
 }
 
+
     public static void main(String[] args) throws FileNotFoundException {
-        long startTime =  System.currentTimeMillis();
+        long startTime = System.currentTimeMillis();
 
         Problem2 search = new Problem2();
         //不要再写绝对路径了！！
-        Map<Integer, Set<Integer>> G = search.loadGraph("data/fb.txt"); //change the Absolute path into Relative path
+        Map<Integer, Set<Integer>> G = search.loadGraph("data/toy1.txt");
         ArrayList<Integer> list = search.loadQueryNode("data/QD1.txt");
-        System.out.println(list);
+        System.out.println("Query list: " + list);
 
+        Stack<Integer> seq = new Stack<Integer>();
         search.coreDecompositionLinearList(G);
-
-
-
-        int distance = search.getDistance(5, 6, G);
-        System.out.println("图中点0-3的距离为 "+distance);
-        boolean distance1 = search.checkConnection(list, G);
-        System.out.println(distance1);
-
-        for(int v=1;v<4000;v++){
-            search.deleteNode(v, G);
+//        System.out.println("The peeling sequence, i.e., degeneracy order (即：每个点被删除的顺序)：");
+//        for (int i = 0; i < n; i++)
+//            System.out.print(peer_seq[i] + ", ");
+        for (int j = 0; j < n; j++) {
+            if (search.checkConnection(list, G)) {
+                search.deleteNode(peer_seq[j], G);  //按顺序删除节点
+                seq.push(peer_seq[j]); //把删除节点加入seq stack里
+            } else {
+                System.out.println("Query nodes is no long connected! stop!");
+                break;
+            }
         }
-        System.out.println("G now after remove node: "+"\n"+G);
-//        int v = 9;
-//        search.deleteNode(v, G);
-//        System.out.println("G now after remove node "+v+": "+"\n"+G);
-//        int v2 = 8;
-//        search.deleteNode(v2, G);
-//        System.out.println("G now after remove node "+v2+": "+"\n"+G);
 
 
-        long endTime =  System.currentTimeMillis();
-        long usedTime = endTime-startTime;
-        System.out.println("used time: "+usedTime);
+        System.out.println("G now: " + G);
+        ArrayList<Integer> solution = new ArrayList<Integer>(G.keySet());
+        solution.add(seq.pop());
+        System.out.println("Solution graph vertices included: " + solution);
+
+//        ArrayList<Integer> output = new ArrayList<Integer>();
+//
+//        for(int j=0;j<solution.size();j++){
+//            for (Integer i: list) {
+//                if(G.get(solution.get(j)).contains(i)){
+//                    output.add(solution.get(j));
+//                }
+//
+//            }
+//        }
+//
+//        System.out.println("Solution graph vertices included: " + output);
+
+
+        long endTime = System.currentTimeMillis();
+        long usedTime = endTime - startTime;
+        System.out.println("used time: " + usedTime);
+
     }
-
 }
