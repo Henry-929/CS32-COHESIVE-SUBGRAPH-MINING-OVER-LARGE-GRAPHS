@@ -139,6 +139,11 @@ public class Problem4 {
 
     }
 
+    //检查G节点数量是否超出size constraint
+    public static boolean checkSizeConstraint(int size, Map<Integer, Set<Integer>> G){
+        return G.size() >= size;
+    }
+
     /**
      * 从当前y步骤时图Gy中删除节点v以及相关边的关系
      * @param targetNode the node to be deleted
@@ -155,22 +160,17 @@ public class Problem4 {
             if (core[edges[j]] == 0)
                 linearHeap.decrement(edges[j]);
         }
-        // remove the edges
+//         remove the edges
         Set<Integer> integers = currentGraph.keySet();
         for (Integer integer : integers) {
             if (currentGraph.get(integer).contains(targetNode)) {
-                if (currentGraph.get(integer).size() == 1) {
-                    deleteNode(integer, currentGraph);
-                } else {
-                    currentGraph.get(integer).remove(targetNode);
+                currentGraph.get(integer).remove(targetNode);
 
-                }
             }
         }
 
         System.out.println(targetNode + " is deleted this time.");
     }
-
 
     /**
      * 获取两个搜索节点间最短路径距离，用于判断两个搜索节点是否相连（采用BSF算法）
@@ -292,13 +292,15 @@ public class Problem4 {
         }
     }
 
+
+
     public static void main(String[] args) throws FileNotFoundException {
         long startTime =  System.currentTimeMillis();
 
         Problem4 search = new Problem4();
-        Map<Integer, Set<Integer>> G = search.loadGraph("/Users/rxia/Desktop/COMP5703  Capstone/code/CS32-COHESIVE-SUBGRAPH-MINING-OVER-LARGE-GRAPHS/data/toy1.txt"); //change the Absolute path into Relative path
-        ArrayList<Integer> list = search.loadQueryNode("/Users/rxia/Desktop/COMP5703  Capstone/code/CS32-COHESIVE-SUBGRAPH-MINING-OVER-LARGE-GRAPHS/data/QD1.txt");
-        System.out.println(list);
+        Map<Integer, Set<Integer>> G = search.loadGraph("data/toy1.txt");
+        ArrayList<Integer> list = search.loadQueryNode("data/QD1.txt");
+        System.out.println("Query list: "+list);
 
 //        search.coreDecompositionLinearList(G);
 
@@ -307,18 +309,36 @@ public class Problem4 {
 //        boolean distance1 = search.checkConnection(list, G);
 //        System.out.println(distance1);
 
-        HashMap<String, Integer> map = search.getMaxDistance(2, G);
-        Integer queryNode = map.get("queryNode");
-        Integer node = map.get("node");
-        Integer maxDist = map.get("maxDist");
-        System.out.println("query node 节点 "+queryNode+" 距离最远节点 "+node+" 的距离为 "+maxDist);
+        int sizeConstraint = 4;
 
-        int v = 0;
-        search.deleteNode(v, G);
-        System.out.println("G now after remove node "+v+": "+"\n"+G);
-        int v2 = 1;
-        search.deleteNode(v2, G);
-        System.out.println("G now after remove node "+v2+": "+"\n"+G);
+        Stack<Integer> seq = new Stack<Integer>();
+        while(search.checkConnection(list, G) && checkSizeConstraint(sizeConstraint,G)){
+            for(Integer i: list ){
+                HashMap<String, Integer> map = search.getMaxDistance(i, G);
+                Integer queryNode = map.get("queryNode");
+                Integer node = map.get("node");
+                Integer maxDist = map.get("maxDist");
+                System.out.println("query node 节点 "+queryNode+" 距离最远节点 "+node+" 的距离为 "+maxDist);
+
+                search.deleteNode(node, G);  //删除最远距离node
+                seq.push(node); //把删除节点加入seq stack里
+
+            }
+        }
+        System.out.println("G now: "+G);
+        ArrayList<Integer> solution = new ArrayList<Integer>(G.keySet());
+        solution.add(seq.pop());
+
+        System.out.println("Solution graph vertices included: "+ solution);
+
+
+//        HashMap<String, Integer> map = search.getMaxDistance(, G);
+//        Integer queryNode = map.get("queryNode");
+//        Integer node = map.get("node");
+//        Integer maxDist = map.get("maxDist");
+//        System.out.println("query node 节点 "+queryNode+" 距离最远节点 "+node+" 的距离为 "+maxDist);
+
+
 
 
         long endTime =  System.currentTimeMillis();
