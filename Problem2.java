@@ -1,4 +1,4 @@
-package kcore.decomposition;
+package kcore;
 
 
 import java.io.BufferedReader;
@@ -16,6 +16,7 @@ public class Problem2 {
     int[] edges;
 
 
+    //导入原数据图G
     public Map<Integer, Set<Integer>> loadGraph(String path) throws FileNotFoundException {
         Map<Integer, Set<Integer>> G = new HashMap<>();
 
@@ -71,20 +72,27 @@ public class Problem2 {
                 pstart[i+1] = pstart[i];
             }
         }
-
         System.out.println("n="+n+",m="+m+",dMAX="+dMax);
-
         // 返回图G 数据类型格式是：{(0,{1,2,3}),(1,{2,3})....} 表示点0 与 点1，2，3相邻（直接相连），点1 与点2，3相邻。
-//        System.out.println("G: "+G);
         return G;
     }
 
-    public void coreDecompositionLinearList(Map<Integer, Set<Integer>> G){
+    /**
+     * 找到满足 Maximizing the minimum degree 的图 G
+     * @param G 表示一个当前步骤的图G
+     * @param list 表示查询节点 query node 集合
+     * @return 返回找到符合条件的 Maximizing the minimum degree的图 G
+     */
+    public Map<Integer, Set<Integer>> findMaxMinD(Map<Integer, Set<Integer>> G,ArrayList<Integer> list){
         int max_core = 0;
         int u = 0;
         int key = 0;
+        int i=0;
+
         ListLinearHeap linearHeap = new ListLinearHeap(n,n-1,peer_seq,degree);
-        for (int i=0;i<n;i++){
+
+        while (checkConnection(list, G) && i<n){
+            i++;
             HashMap<Integer,Integer> map = linearHeap.pop_min();
             for (Map.Entry<Integer,Integer> entry : map.entrySet()){
                 u = entry.getKey();
@@ -95,29 +103,33 @@ public class Problem2 {
                 max_core = key;
             peer_seq[i] = u;
             core[u] = max_core;
+
+            for(int queryNode : list){
+                if (queryNode == u){
+                    //将贪心算法过程中多删除的节点进行回溯，重新加入G中
+                    while (core[u] == core[u+1]){
+                        u = u+1;
+                        G.put(u,null);
+                    }
+                    return G;
+                }
+            }
+
             for (int j=pstart[u]; j<pstart[u+1];j++){
                 if (core[edges[j]] == 0)
                     linearHeap.decrement(edges[j]);
             }
+
+            //System.out.println("删除的节点是 "+u);
+            deleteNode(u, G);
         }
-
-
-
+        return G;
     }
 
-//    public Map<Integer, Set<Integer>> findMaxMinD(){
-//        while (){
-//
-//        }
-//
-//
-//        return null;
-//    }
 
     //导入查询节点
     public ArrayList<Integer> loadQueryNode(String path) throws FileNotFoundException {
         ArrayList<Integer> list = new ArrayList<>();
-
 
         Scanner sc = new Scanner(new BufferedReader(new FileReader(path)));
         String str = sc.nextLine();
@@ -136,27 +148,32 @@ public class Problem2 {
             for (int j = 1; j < list.size(); j++) {
                 int d =  getDistance(list.get(i), list.get(j), G);
                 if (d == -1) {
-//                    System.out.println(list.get(i) + " " + list.get(j));
-
                     return false;
                 }
             }
         }
         return true;
-
     }
 
+
+    /**
+     * 获取两个搜索节点间最短路径距离，用于判断两个搜索节点是否相连（采用BSF算法）
+     * @param p1 一个搜索节点 query node
+     * @param p2 一个搜索节点 query node
+     * @param G
+     * @return 返回两个搜索节点间最短路径距离（若相连则返回最短路径距离，若不相连则返回-1）
+     */
     public int getDistance(Integer p1, Integer p2, Map<Integer, Set<Integer>> G) {
 
         Queue<Integer> queue = new LinkedList<Integer>(); // 队列，用于BFS搜素
         int distance = 0;
-        Integer temp = 0;
-        Integer queueEnd = 0;
+        int temp = 0;
+        int queueEnd = 0;
         Set<Integer> tempCol = new HashSet<>();
         // visit数组（visit为标志是否访问过的数组,访问过为1，否则为0）
-        int[] visit = new int[G.size()];
+        int[] visit = new int[n];
         // isQueueEnd标志节点i是否是某轮bfs广搜的终点，若是，其为true，,需要使distance++
-        boolean[] isQueueEnd = new boolean[G.size()];
+        boolean[] isQueueEnd = new boolean[n];
 
         // 初始化，对p1进行设定
         queue.add(p1);
@@ -166,9 +183,8 @@ public class Problem2 {
         while (!Objects.equals(queue.peek(), p2)) {
             temp = queue.poll(); // 弹出并保存queue的头元素
             // 将与queue头元素直接相连，且未访问过的元素入队
-//            System.out.println("++++++++"+G.get(temp).size());
             tempCol = G.get(temp); // tempCol保存头元素对应的关系矩阵行
-            for (Integer t : tempCol){  // 头元素对应的关系矩阵行，遍历此行中的所有元素，并将其加入队列,同时把其标记为访问过
+            for (int t : tempCol){  // 头元素对应的关系矩阵行，遍历此行中的所有元素，并将其加入队列,同时把其标记为访问过
                 if (visit[t] == 0){
                     queue.add(t);
                     visit[t] = 1;
@@ -190,84 +206,30 @@ public class Problem2 {
     }
 
 
-
     /**
      * 从当前y步骤时图Gy中删除节点v以及相关边的关系
      * @param targetNode the node to be deleted
      * @param currentGraph the current graph
      */
     public void deleteNode(int targetNode, Map<Integer, Set<Integer>> currentGraph) {
-
-        ListLinearHeap linearHeap = new ListLinearHeap(n,n-1,peer_seq,degree);
-        //remove the nodes
-        currentGraph.remove(targetNode);
-        linearHeap.remove(targetNode);
-//        delete degree
-//        for (int j=pstart[targetNode]; j<pstart[targetNode+1];j++){
-//            if (core[edges[j]] == 0)
-//                linearHeap.decrement(edges[j]);
-//        }
-//         remove the edges
-        Set<Integer> integers = currentGraph.keySet();
-        for (Integer integer : integers) {
-            if (currentGraph.get(integer).contains(targetNode)) {
-                currentGraph.get(integer).remove(targetNode);
-//                if (currentGraph.get(integer).size() == 1) {
-//                    deleteNode(integer, currentGraph);
-//                } else {
-//                    currentGraph.get(integer).remove(targetNode);
-//
-//                }
-            }
+        Set<Integer> removeReNodes = currentGraph.remove(targetNode);
+        for (int i : removeReNodes){
+            currentGraph.get(i).remove(targetNode);
         }
-
-        System.out.println(targetNode + " is deleted this time.");
-}
+    }
 
 
     public static void main(String[] args) throws FileNotFoundException {
         long startTime = System.currentTimeMillis();
 
         Problem2 search = new Problem2();
-        //不要再写绝对路径了！！
         Map<Integer, Set<Integer>> G = search.loadGraph("data/toy1.txt");
         ArrayList<Integer> list = search.loadQueryNode("data/QD1.txt");
-        System.out.println("Query list: " + list);
 
-        Stack<Integer> seq = new Stack<Integer>();
-        search.coreDecompositionLinearList(G);
-//        System.out.println("The peeling sequence, i.e., degeneracy order (即：每个点被删除的顺序)：");
-//        for (int i = 0; i < n; i++)
-//            System.out.print(peer_seq[i] + ", ");
-        for (int j = 0; j < n; j++) {
-            if (search.checkConnection(list, G)) {
-                search.deleteNode(peer_seq[j], G);  //按顺序删除节点
-                seq.push(peer_seq[j]); //把删除节点加入seq stack里
-            } else {
-                System.out.println("Query nodes is no long connected! stop!");
-                break;
-            }
-        }
+        Map<Integer, Set<Integer>> maxMinDGraph = search.findMaxMinD(G, list);
 
-
-        System.out.println("G now: " + G);
-        ArrayList<Integer> solution = new ArrayList<Integer>(G.keySet());
-        solution.add(seq.pop());
-        System.out.println("Solution graph vertices included: " + solution);
-
-//        ArrayList<Integer> output = new ArrayList<Integer>();
-//
-//        for(int j=0;j<solution.size();j++){
-//            for (Integer i: list) {
-//                if(G.get(solution.get(j)).contains(i)){
-//                    output.add(solution.get(j));
-//                }
-//
-//            }
-//        }
-//
-//        System.out.println("Solution graph vertices included: " + output);
-
+        //System.out.println("G now: " + G);
+        System.out.println("Solution graph vertices included: " + maxMinDGraph.keySet());
 
         long endTime = System.currentTimeMillis();
         long usedTime = endTime - startTime;

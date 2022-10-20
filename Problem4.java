@@ -1,5 +1,4 @@
-package kcore.decomposition;
-
+package kcore;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -10,7 +9,7 @@ public class Problem4 {
     Integer n,m;
     int[] peer_seq, degree, core, pstart, edges;
 
-
+    //导入原数据图G
     public Map<Integer, Set<Integer>> loadGraph(String path) throws FileNotFoundException {
         Map<Integer, Set<Integer>> G = new HashMap<>();
 
@@ -68,18 +67,26 @@ public class Problem4 {
         }
 
         System.out.println("n="+n+",m="+m+",dMAX="+dMax);
-
         // 返回图G 数据类型格式是：{(0,{1,2,3}),(1,{2,3})....} 表示点0 与 点1，2，3相邻（直接相连），点1 与点2，3相邻。
-        System.out.println("G: "+G);
         return G;
     }
 
-    public void coreDecompositionLinearList(Map<Integer, Set<Integer>> G){
+    /**
+     * 找到满足 Maximizing the minimum degree 的图 G
+     * @param G 表示一个当前步骤的图G
+     * @param list 表示查询节点 query node 集合
+     * @return 返回找到符合条件的 Maximizing the minimum degree的图 G
+     */
+    public Map<Integer, Set<Integer>> findMaxMinD(Map<Integer, Set<Integer>> G,ArrayList<Integer> list){
         int max_core = 0;
         int u = 0;
         int key = 0;
+        int i=0;
+
         ListLinearHeap linearHeap = new ListLinearHeap(n,n-1,peer_seq,degree);
-        for (int i=0;i<n;i++){
+
+        while (checkConnection(list, G) && i<n){
+            i++;
             HashMap<Integer,Integer> map = linearHeap.pop_min();
             for (Map.Entry<Integer,Integer> entry : map.entrySet()){
                 u = entry.getKey();
@@ -90,27 +97,33 @@ public class Problem4 {
                 max_core = key;
             peer_seq[i] = u;
             core[u] = max_core;
+
+            for(int queryNode : list){
+                if (queryNode == u){
+                    //将贪心算法过程中多删除的节点进行回溯，重新加入G中
+                    while (core[u] == core[u+1]){
+                        u = u+1;
+                        G.put(u,null);
+                    }
+                    return G;
+                }
+            }
+
             for (int j=pstart[u]; j<pstart[u+1];j++){
                 if (core[edges[j]] == 0)
                     linearHeap.decrement(edges[j]);
             }
-        }
 
+            //System.out.println("删除的节点是 "+u);
+            deleteNode(u, G);
+        }
+        return G;
     }
 
-//    public Map<Integer, Set<Integer>> findMaxMinD(){
-//        while (){
-//
-//        }
-//
-//
-//        return null;
-//    }
 
     //导入查询节点
     public ArrayList<Integer> loadQueryNode(String path) throws FileNotFoundException {
         ArrayList<Integer> list = new ArrayList<>();
-
 
         Scanner sc = new Scanner(new BufferedReader(new FileReader(path)));
         String str = sc.nextLine();
@@ -129,19 +142,19 @@ public class Problem4 {
             for (int j = 1; j < list.size(); j++) {
                 int d =  getDistance(list.get(i), list.get(j), G);
                 if (d == -1) {
-                    System.out.println(list.get(i) + " " + list.get(j));
-
                     return false;
                 }
             }
         }
         return true;
-
     }
 
     //检查G节点数量是否超出size constraint
-    public static boolean checkSizeConstraint(int size, Map<Integer, Set<Integer>> G){
-        return G.size() >= size;
+    public boolean checkSizeConstraint(int size, Map<Integer, Set<Integer>> G){
+        if (G.size() <= size)
+            return false;
+        else
+            return true;
     }
 
     /**
@@ -150,26 +163,12 @@ public class Problem4 {
      * @param currentGraph the current graph
      */
     public void deleteNode(int targetNode, Map<Integer, Set<Integer>> currentGraph) {
-
-        ListLinearHeap linearHeap = new ListLinearHeap(n,n-1,peer_seq,degree);
-        //remove the nodes
-        currentGraph.remove(targetNode);
-        linearHeap.remove(targetNode);
-//        delete degree
-        for (int j=pstart[targetNode]; j<pstart[targetNode+1];j++){
-            if (core[edges[j]] == 0)
-                linearHeap.decrement(edges[j]);
-        }
-//         remove the edges
-        Set<Integer> integers = currentGraph.keySet();
-        for (Integer integer : integers) {
-            if (currentGraph.get(integer).contains(targetNode)) {
-                currentGraph.get(integer).remove(targetNode);
-
+        Set<Integer> removeReNodes = currentGraph.remove(targetNode);
+        if (removeReNodes != null){
+            for (int i : removeReNodes){
+                currentGraph.get(i).remove(targetNode);
             }
         }
-
-        System.out.println(targetNode + " is deleted this time.");
     }
 
     /**
@@ -179,17 +178,17 @@ public class Problem4 {
      * @param G
      * @return 返回两个搜索节点间最短路径距离（若相连则返回最短路径距离，若不相连则返回-1）
      */
-    public int getDistance(Integer p1, Integer p2, Map<Integer, Set<Integer>> G) {
+    public int getDistance(int p1, int p2, Map<Integer, Set<Integer>> G) {
 
         Queue<Integer> queue = new LinkedList<Integer>(); // 队列，用于BFS搜素
         int distance = 0;
-        Integer temp = 0;
-        Integer queueEnd = 0;
+        int temp = 0;
+        int queueEnd = 0;
         Set<Integer> tempCol = new HashSet<>();
         // visit数组（visit为标志是否访问过的数组,访问过为1，否则为0）
-        int[] visit = new int[G.size()];
+        int[] visit = new int[n];
         // isQueueEnd标志节点i是否是某轮bfs广搜的终点，若是，其为true，,需要使distance++
-        boolean[] isQueueEnd = new boolean[G.size()];
+        boolean[] isQueueEnd = new boolean[n];
 
         // 初始化，对p1进行设定
         queue.add(p1);
@@ -199,9 +198,8 @@ public class Problem4 {
         while (!Objects.equals(queue.peek(), p2)) {
             temp = queue.poll(); // 弹出并保存queue的头元素
             // 将与queue头元素直接相连，且未访问过的元素入队
-//            System.out.println("++++++++"+G.get(temp).size());
             tempCol = G.get(temp); // tempCol保存头元素对应的关系矩阵行
-            for (Integer t : tempCol){  // 头元素对应的关系矩阵行，遍历此行中的所有元素，并将其加入队列,同时把其标记为访问过
+            for (int t : tempCol){  // 头元素对应的关系矩阵行，遍历此行中的所有元素，并将其加入队列,同时把其标记为访问过
                 if (visit[t] == 0){
                     queue.add(t);
                     visit[t] = 1;
@@ -230,8 +228,8 @@ public class Problem4 {
      */
     public HashMap<String, Integer> getMaxDistance(int queryN, Map<Integer, Set<Integer>> G){
         HashMap<String, Integer> map = new HashMap<>();
-        int array[] = new int[G.size()]; //用于存储每个节点距离查询节点的距离（index对应每个节点，value对应距离）
-        int sort[] = new int[G.size()];//用于存储排序后的距离值
+        int array[] = new int[n]; //用于存储每个节点距离查询节点的距离（index对应每个节点，value对应距离）
+        int sort[] = new int[n];//用于存储排序后的距离值
 
         //遍历找到每个节点到查询节点的最短路径距离
         for (Integer v : G.keySet()){
@@ -242,7 +240,7 @@ public class Problem4 {
             }
             array[v] = disV;
         }
-        map.put("queryNode", queryN); //输出查询节点
+        //map.put("queryNode", queryN); //输出查询节点
         for (int i=0;i<sort.length;i++){
             sort[i] = array[i];
         }
@@ -252,7 +250,7 @@ public class Problem4 {
         for (int i=0;i<array.length;i++){
             if (array[i] == sort[array.length-1]){
                 map.put("node", i);//输出当前图中距离查询节点queryN最远距离的节点
-                map.put("maxDist", sort[array.length-1]);//输出当前图中距离查询节点queryN最远距离的节点的距离
+                //map.put("maxDist", sort[array.length-1]);//输出当前图中距离查询节点queryN最远距离的节点的距离
             }
         }
         return map;
@@ -292,6 +290,30 @@ public class Problem4 {
         }
     }
 
+    /**
+     * 找到符合 size Constraint 的图G
+     * @param G  表示一个当前步骤的图G
+     * @param sizeConstraint
+     * @param list  表示查询节点 query node 集合
+     */
+    public Map<Integer, Set<Integer>> findConstraintG(Map<Integer, Set<Integer>> G,
+                                                      int sizeConstraint,
+                                                      ArrayList<Integer> list){
+        while(checkConnection(list, G) && checkSizeConstraint(sizeConstraint,G)){
+            for(Integer i: list ){
+                HashMap<String, Integer> map = getMaxDistance(i, G);
+                //Integer queryNode = map.get("queryNode");
+                Integer node = map.get("node");
+                //Integer maxDist = map.get("maxDist");
+                //System.out.println("query node 节点 "+queryNode+" 距离最远节点 "+node+" 的距离为 "+maxDist);
+
+                deleteNode(node, G);  //删除最远距离node
+                if (!checkSizeConstraint(sizeConstraint,G))
+                    return G;
+            }
+        }
+        return G;
+    }
 
 
     public static void main(String[] args) throws FileNotFoundException {
@@ -300,46 +322,14 @@ public class Problem4 {
         Problem4 search = new Problem4();
         Map<Integer, Set<Integer>> G = search.loadGraph("data/toy1.txt");
         ArrayList<Integer> list = search.loadQueryNode("data/QD1.txt");
-        System.out.println("Query list: "+list);
 
-//        search.coreDecompositionLinearList(G);
-
-//        int distance = search.getDistance(5, 6, G);
-//        System.out.println("图中点0-3的距离为 "+distance);
-//        boolean distance1 = search.checkConnection(list, G);
-//        System.out.println(distance1);
+        Map<Integer, Set<Integer>> maxMinDGraph = search.findMaxMinD(G, list);
 
         int sizeConstraint = 4;
+        Map<Integer, Set<Integer>> constraintG = search.findConstraintG(maxMinDGraph, sizeConstraint, list);
 
-        Stack<Integer> seq = new Stack<Integer>();
-        while(search.checkConnection(list, G) && checkSizeConstraint(sizeConstraint,G)){
-            for(Integer i: list ){
-                HashMap<String, Integer> map = search.getMaxDistance(i, G);
-                Integer queryNode = map.get("queryNode");
-                Integer node = map.get("node");
-                Integer maxDist = map.get("maxDist");
-                System.out.println("query node 节点 "+queryNode+" 距离最远节点 "+node+" 的距离为 "+maxDist);
-
-                search.deleteNode(node, G);  //删除最远距离node
-                seq.push(node); //把删除节点加入seq stack里
-
-            }
-        }
-        System.out.println("G now: "+G);
-        ArrayList<Integer> solution = new ArrayList<Integer>(G.keySet());
-        solution.add(seq.pop());
-
-        System.out.println("Solution graph vertices included: "+ solution);
-
-
-//        HashMap<String, Integer> map = search.getMaxDistance(, G);
-//        Integer queryNode = map.get("queryNode");
-//        Integer node = map.get("node");
-//        Integer maxDist = map.get("maxDist");
-//        System.out.println("query node 节点 "+queryNode+" 距离最远节点 "+node+" 的距离为 "+maxDist);
-
-
-
+        //System.out.println("G now: "+constraintG);
+        System.out.println("Solution graph vertices included: "+ constraintG.keySet());
 
         long endTime =  System.currentTimeMillis();
         long usedTime = endTime-startTime;
