@@ -103,7 +103,8 @@ public class Problem4 {
                     //将贪心算法过程中多删除的节点进行回溯，重新加入G中
                     while (u > 0 && core[u] == core[u-1]){
                         u = u-1;
-                        G.put(u,new HashSet<>(list.get(0)));
+                        G.put(u,new HashSet<>());
+                        G.get(u).add(list.get(0));
                         G.get(list.get(0)).add(u);
                     }
 
@@ -111,7 +112,8 @@ public class Problem4 {
 
                     while (core[u] == core[u+1]){
                         u = u+1;
-                        G.put(u,new HashSet<>(list.get(0)));
+                        G.put(u,new HashSet<>());
+                        G.get(u).add(list.get(0));
                         G.get(list.get(0)).add(u);
                     }
                     return G;
@@ -239,15 +241,19 @@ public class Problem4 {
 
         HashMap<String, Object> map = new HashMap<>();
         Queue<Integer> queue = new LinkedList<Integer>(); // 队列，用于BFS搜素
+        int distance = 0;
         int temp = 0;
         int queueEnd = 0;
         Set<Integer> tempCol = new HashSet<>();
         // visit数组（visit为标志是否访问过的数组,访问过为1，否则为0）
         int[] visit = new int[n];
+        // isQueueEnd标志节点i是否是某轮bfs广搜的终点，若是，其为true，,需要使distance++
+        boolean[] isQueueEnd = new boolean[n];
 
         // 初始化，对p1进行设定
         queue.add(p1);
         visit[p1] = 1;
+        isQueueEnd[p1]=true;
 
         while (!queue.isEmpty()) {
             temp = queue.poll(); // 弹出并保存queue的头元素
@@ -260,10 +266,16 @@ public class Problem4 {
                     queueEnd = t; // 记录当前队尾
                 }
             }
+            // 记录当前队尾，并使distance++
+            if (isQueueEnd[temp]) {
+                isQueueEnd[queueEnd]=true;
+                distance++;
+            }
         }
 
         map.put("visitArray",visit);
         map.put("farthestNode",queueEnd);
+        map.put("fartdistance",distance-1);
         return map;
     }
 
@@ -287,16 +299,20 @@ public class Problem4 {
     public Map<Integer, Set<Integer>> findConstraintG(Map<Integer, Set<Integer>> G,
                                                       int sizeConstraint,
                                                       ArrayList<Integer> list){
-        int temp = 0;
+        int tempDistance = 0;
+        int tempnode = 0;
         while(checkConnection(list, G) && checkSizeConstraint(sizeConstraint,G)){
             for(Integer i: list ){
-                int farthestNode = (int) getFarthestNode(i, G).get("farthestNode");
-                if (temp < farthestNode){
-                    temp = farthestNode;
+                HashMap<String, Object> nodeMap = getFarthestNode(i, G);
+                int farthestNode = (int) nodeMap.get("farthestNode");
+                int fartdistance = (int) nodeMap.get("fartdistance");
+                if (tempDistance < fartdistance && !list.contains(farthestNode)){
+                    tempDistance = fartdistance;
+                    tempnode = farthestNode;
                 }
             }
-            deleteNode(temp, G);  //删除最远距离node
-            temp = 0;
+            deleteNode(tempnode, G);  //删除最远距离node
+            tempDistance = 0;
         }
         return G;
     }
@@ -307,7 +323,7 @@ public class Problem4 {
         Problem4 search = new Problem4();
         Map<Integer, Set<Integer>> G = search.loadGraph("data/toy1.txt");
         ArrayList<Integer> list = search.loadQueryNode("data/QD1.txt");
-        int sizeConstraint = 5;
+        int sizeConstraint = 4;
         long startTime =  System.currentTimeMillis();
 
         Map<Integer, Set<Integer>> maxMinDGraph = search.findMaxMinD(G, list);
