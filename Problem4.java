@@ -101,9 +101,18 @@ public class Problem4 {
             for(int queryNode : list){
                 if (queryNode == u){
                     //将贪心算法过程中多删除的节点进行回溯，重新加入G中
+                    while (u > 0 && core[u] == core[u-1]){
+                        u = u-1;
+                        G.put(u,new HashSet<>(list.get(0)));
+                        G.get(list.get(0)).add(u);
+                    }
+
+                    u=queryNode;
+
                     while (core[u] == core[u+1]){
                         u = u+1;
-                        G.put(u,null);
+                        G.put(u,new HashSet<>(list.get(0)));
+                        G.get(list.get(0)).add(u);
                     }
                     return G;
                 }
@@ -221,73 +230,52 @@ public class Problem4 {
     }
 
     /**
-     * 获取距离一个搜索节点query node最远距离的节点和距离
-     * @param queryN 一个搜索节点query node
-     * @param G 当前图G
-     * @return 返回值获取可看main中调用案例
+     * 获取距离节点p1在图G中最远的节点（采用BSF算法）
+     * @param p1 一个搜索节点 query node
+     * @param G
+     * @return 返回最远距离节点 和 与节点p1在图G中不相连的节点数组
      */
-    public HashMap<String, Integer> getMaxDistance(int queryN, Map<Integer, Set<Integer>> G){
-        HashMap<String, Integer> map = new HashMap<>();
-        int array[] = new int[n]; //用于存储每个节点距离查询节点的距离（index对应每个节点，value对应距离）
-        int sort[] = new int[n];//用于存储排序后的距离值
+    public HashMap<String, Object> getFarthestNode(int p1, Map<Integer, Set<Integer>> G) {
 
-        //遍历找到每个节点到查询节点的最短路径距离
-        for (Integer v : G.keySet()){
-            int disV = getDistance(queryN, v, G);//使用BSF算法，获取节点v到查询节点queryN 的最短路径距离
-            if (disV == -1){
-                //将不相连节点距离设置为最大值，方便排序
-                disV = Integer.MAX_VALUE;
-            }
-            array[v] = disV;
-        }
-        //map.put("queryNode", queryN); //输出查询节点
-        for (int i=0;i<sort.length;i++){
-            sort[i] = array[i];
-        }
-        //进行归并排序
-        mergeSort(sort, 0, array.length-1);
+        HashMap<String, Object> map = new HashMap<>();
+        Queue<Integer> queue = new LinkedList<Integer>(); // 队列，用于BFS搜素
+        int temp = 0;
+        int queueEnd = 0;
+        Set<Integer> tempCol = new HashSet<>();
+        // visit数组（visit为标志是否访问过的数组,访问过为1，否则为0）
+        int[] visit = new int[n];
 
-        for (int i=0;i<array.length;i++){
-            if (array[i] == sort[array.length-1]){
-                map.put("node", i);//输出当前图中距离查询节点queryN最远距离的节点
-                //map.put("maxDist", sort[array.length-1]);//输出当前图中距离查询节点queryN最远距离的节点的距离
+        // 初始化，对p1进行设定
+        queue.add(p1);
+        visit[p1] = 1;
+
+        while (!queue.isEmpty()) {
+            temp = queue.poll(); // 弹出并保存queue的头元素
+            // 将与queue头元素直接相连，且未访问过的元素入队
+            tempCol = G.get(temp); // tempCol保存头元素对应的关系矩阵行
+            for (int t : tempCol){  // 头元素对应的关系矩阵行，遍历此行中的所有元素，并将其加入队列,同时把其标记为访问过
+                if (visit[t] == 0){
+                    queue.add(t);
+                    visit[t] = 1;
+                    queueEnd = t; // 记录当前队尾
+                }
             }
         }
+
+        map.put("visitArray",visit);
+        map.put("farthestNode",queueEnd);
         return map;
     }
 
-    /**
-     * 两路归并算法，两个排好序的子序列合并为一个子序列
-     */
-    public void merge(int []a,int left,int mid,int right){
-        int []tmp=new int[a.length];//辅助数组
-        int p1=left,p2=mid+1,k=left;//p1、p2是检测指针，k是存放指针
-
-        while(p1<=mid && p2<=right){
-            if(a[p1]<=a[p2])
-                tmp[k++]=a[p1++];
-            else
-                tmp[k++]=a[p2++];
+    //删除与query node 不相连的节点
+    public  Map<Integer, Set<Integer>> delSeparateComponent(ArrayList<Integer> list,Map<Integer, Set<Integer>> G){
+        int[] separateComponent = (int[]) getFarthestNode(list.get(0), G).get("visitArray");
+        for (int i=0;i<n;i++){
+            if (separateComponent[i]==0){
+                deleteNode(i,G);
+            }
         }
-
-        while(p1<=mid) tmp[k++]=a[p1++];//如果第一个序列未检测完，直接将后面所有元素加到合并的序列中
-        while(p2<=right) tmp[k++]=a[p2++];//同上
-
-        //复制回原素组
-        for (int i = left; i <=right; i++)
-            a[i]=tmp[i];
-    }
-
-    /**
-     * 归并排序
-     */
-    public void mergeSort(int [] a,int start,int end){
-        if(start<end){//当子序列中只有一个元素时结束递归
-            int mid=(start+end)/2;//划分子序列
-            mergeSort(a, start, mid);//对左侧子序列进行递归排序
-            mergeSort(a, mid+1, end);//对右侧子序列进行递归排序
-            merge(a, start, mid, end);//合并
-        }
+        return G;
     }
 
     /**
@@ -299,41 +287,38 @@ public class Problem4 {
     public Map<Integer, Set<Integer>> findConstraintG(Map<Integer, Set<Integer>> G,
                                                       int sizeConstraint,
                                                       ArrayList<Integer> list){
+        int temp = 0;
         while(checkConnection(list, G) && checkSizeConstraint(sizeConstraint,G)){
             for(Integer i: list ){
-                HashMap<String, Integer> map = getMaxDistance(i, G);
-                //Integer queryNode = map.get("queryNode");
-                Integer node = map.get("node");
-                //Integer maxDist = map.get("maxDist");
-                //System.out.println("query node 节点 "+queryNode+" 距离最远节点 "+node+" 的距离为 "+maxDist);
-
-                deleteNode(node, G);  //删除最远距离node
-                if (!checkSizeConstraint(sizeConstraint,G))
-                    return G;
+                int farthestNode = (int) getFarthestNode(i, G).get("farthestNode");
+                if (temp < farthestNode){
+                    temp = farthestNode;
+                }
             }
+            deleteNode(temp, G);  //删除最远距离node
+            temp = 0;
         }
         return G;
     }
 
 
     public static void main(String[] args) throws FileNotFoundException {
-        long startTime =  System.currentTimeMillis();
 
         Problem4 search = new Problem4();
         Map<Integer, Set<Integer>> G = search.loadGraph("data/toy1.txt");
         ArrayList<Integer> list = search.loadQueryNode("data/QD1.txt");
+        int sizeConstraint = 5;
+        long startTime =  System.currentTimeMillis();
 
         Map<Integer, Set<Integer>> maxMinDGraph = search.findMaxMinD(G, list);
-
-        int sizeConstraint = 4;
-        Map<Integer, Set<Integer>> constraintG = search.findConstraintG(maxMinDGraph, sizeConstraint, list);
-
-        //System.out.println("G now: "+constraintG);
-        System.out.println("Solution graph vertices included: "+ constraintG.keySet());
+        Map<Integer, Set<Integer>> delSepareteGraph = search.delSeparateComponent(list, maxMinDGraph);
+        Map<Integer, Set<Integer>> constraintG = search.findConstraintG(delSepareteGraph, sizeConstraint, list);
 
         long endTime =  System.currentTimeMillis();
         long usedTime = endTime-startTime;
-        System.out.println("used time: "+usedTime);
+        System.out.println("Solution graph vertices included: "+ constraintG.keySet());
+        System.out.println("Solution graph size is: " + constraintG.keySet().size());
+        System.out.println("Solution used time: "+usedTime);
     }
 
 }

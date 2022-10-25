@@ -92,7 +92,6 @@ public class Problem2 {
         ListLinearHeap linearHeap = new ListLinearHeap(n,n-1,peer_seq,degree);
 
         while (checkConnection(list, G) && i<n){
-            i++;
             HashMap<Integer,Integer> map = linearHeap.pop_min();
             for (Map.Entry<Integer,Integer> entry : map.entrySet()){
                 u = entry.getKey();
@@ -107,9 +106,18 @@ public class Problem2 {
             for(int queryNode : list){
                 if (queryNode == u){
                     //将贪心算法过程中多删除的节点进行回溯，重新加入G中
+                    while (u > 0 && core[u] == core[u-1]){
+                        u = u-1;
+                        G.put(u,new HashSet<>(list.get(0)));
+                        G.get(list.get(0)).add(u);
+                    }
+
+                    u=queryNode;
+
                     while (core[u] == core[u+1]){
                         u = u+1;
-                        G.put(u,null);
+                        G.put(u,new HashSet<>(list.get(0)));
+                        G.get(list.get(0)).add(u);
                     }
                     return G;
                 }
@@ -122,7 +130,9 @@ public class Problem2 {
 
             //System.out.println("删除的节点是 "+u);
             deleteNode(u, G);
+            i++;
         }
+
         return G;
     }
 
@@ -213,27 +223,72 @@ public class Problem2 {
      */
     public void deleteNode(int targetNode, Map<Integer, Set<Integer>> currentGraph) {
         Set<Integer> removeReNodes = currentGraph.remove(targetNode);
-        for (int i : removeReNodes){
-            currentGraph.get(i).remove(targetNode);
+        if (removeReNodes != null){
+            for (int i : removeReNodes){
+                currentGraph.get(i).remove(targetNode);
+            }
         }
+    }
+
+    /**
+     * 获取与节点p1在图G中不相连的节点数组（采用BSF算法）
+     * @param p1 一个搜索节点 query node
+     * @param G
+     * @return 返回是否相连数组
+     */
+    public int[] getSeparateComponent(int p1, Map<Integer, Set<Integer>> G) {
+
+        Queue<Integer> queue = new LinkedList<Integer>(); // 队列，用于BFS搜素
+        int temp = 0;
+        Set<Integer> tempCol = new HashSet<>();
+        // visit数组（visit为标志是否访问过的数组,访问过为1，否则为0）
+        int[] visited = new int[n];
+
+        // 初始化，对p1进行设定
+        queue.add(p1);
+        visited[p1] = 1;
+
+        while (!queue.isEmpty()) {
+            temp = queue.poll(); // 弹出并保存queue的头元素
+            // 将与queue头元素直接相连，且未访问过的元素入队
+            tempCol = G.get(temp); // tempCol保存头元素对应的关系矩阵行
+            for (int t : tempCol){  // 头元素对应的关系矩阵行，遍历此行中的所有元素，并将其加入队列,同时把其标记为访问过
+                if (visited[t] == 0){
+                    queue.add(t);
+                    visited[t] = 1;
+                }
+            }
+        }
+
+        return visited;
+    }
+
+    //删除与query node 不相连的节点
+    public  Map<Integer, Set<Integer>> delSeparateComponent(ArrayList<Integer> list,Map<Integer, Set<Integer>> G){
+        int[] separateComponent = getSeparateComponent(list.get(0), G);
+        for (int i=0;i<n;i++){
+            if (separateComponent[i]==0){
+                deleteNode(i,G);
+            }
+        }
+        return G;
     }
 
 
     public static void main(String[] args) throws FileNotFoundException {
-        long startTime = System.currentTimeMillis();
-
         Problem2 search = new Problem2();
         Map<Integer, Set<Integer>> G = search.loadGraph("data/toy1.txt");
         ArrayList<Integer> list = search.loadQueryNode("data/QD1.txt");
+        long startTime = System.currentTimeMillis();
 
         Map<Integer, Set<Integer>> maxMinDGraph = search.findMaxMinD(G, list);
-
-        //System.out.println("G now: " + G);
-        System.out.println("Solution graph vertices included: " + maxMinDGraph.keySet());
+        Map<Integer, Set<Integer>> delSepareteGraph = search.delSeparateComponent(list, maxMinDGraph);
 
         long endTime = System.currentTimeMillis();
         long usedTime = endTime - startTime;
-        System.out.println("used time: " + usedTime);
+        System.out.println("Solution graph vertices included: " + delSepareteGraph.keySet());
+        System.out.println("Solution graph size is: " + delSepareteGraph.keySet().size());
+        System.out.println("Solution used time: " + usedTime);
 
     }
 }
