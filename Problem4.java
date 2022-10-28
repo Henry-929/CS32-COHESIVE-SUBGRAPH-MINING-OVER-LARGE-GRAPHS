@@ -299,8 +299,8 @@ public class Problem4 {
     public Map<Integer, Set<Integer>> findConstraintG(Map<Integer, Set<Integer>> G,
                                                       int sizeConstraint,
                                                       ArrayList<Integer> list){
-        int tempDistance = 0;
-        int tempnode = 0;
+        int tempDistance = -1;
+        int tempnode = -1;
         while(checkConnection(list, G) && checkSizeConstraint(sizeConstraint,G)){
             for(Integer i: list ){
                 HashMap<String, Object> nodeMap = getFarthestNode(i, G);
@@ -312,18 +312,36 @@ public class Problem4 {
                 }
             }
             deleteNode(tempnode, G);  //删除最远距离node
-            tempDistance = 0;
+            tempDistance = -1;
         }
+
         return G;
+    }
+
+    /**
+     * 将与query node和query node相邻的节点进行屏蔽，不予以删除
+     * @param farthestNode 查找到的距离query node最远距离节点
+     * @param list（query node）
+     * @param G
+     * @return 返回最远距离节点（即将要删除的节点是否是 query node和query node相邻的节点）
+     */
+    public boolean checkQueryN(int farthestNode,ArrayList<Integer> list,Map<Integer, Set<Integer>> G){
+        for (int i : list){
+            for (int v : G.get(i)){
+                if (farthestNode == v || farthestNode == i)
+                    return false;
+            }
+        }
+        return true;
     }
 
 
     public static void main(String[] args) throws FileNotFoundException {
 
         Problem4 search = new Problem4();
-        Map<Integer, Set<Integer>> G = search.loadGraph("data/toy1.txt");
+        Map<Integer, Set<Integer>> G = search.loadGraph("data/fb.txt");
         ArrayList<Integer> list = search.loadQueryNode("data/QD1.txt");
-        int sizeConstraint = 4;
+        int sizeConstraint = 30;
         long startTime =  System.currentTimeMillis();
 
         Map<Integer, Set<Integer>> maxMinDGraph = search.findMaxMinD(G, list);
@@ -332,8 +350,25 @@ public class Problem4 {
 
         long endTime =  System.currentTimeMillis();
         long usedTime = endTime-startTime;
-        System.out.println("Solution graph vertices included: "+ constraintG.keySet());
-        System.out.println("Solution graph size is: " + constraintG.keySet().size());
+
+        int tempDegree = 0;
+        for (int i : list){
+            if (search.core[i]>tempDegree){
+                tempDegree = search.core[i];
+            }
+        }
+
+        int tempEdgeSize = 0;
+        for (int i : constraintG.keySet()){
+            tempEdgeSize += constraintG.get(i).size();
+        }
+        float nodeSize = constraintG.size();
+        float edgeSize = tempEdgeSize/2;
+        float f = edgeSize / nodeSize;
+
+        System.out.println("Solution graph minimum degree is: "+ tempDegree);
+        System.out.println("Solution graph density is: " + f);
+        System.out.println("Solution graph size is: " + constraintG.size());
         System.out.println("Solution used time: "+usedTime);
     }
 
