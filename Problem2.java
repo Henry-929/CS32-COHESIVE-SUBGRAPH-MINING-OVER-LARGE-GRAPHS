@@ -83,15 +83,17 @@ public class Problem2 {
      * @param list 表示查询节点 query node 集合
      * @return 返回找到符合条件的 Maximizing the minimum degree的图 G
      */
-    public Map<Integer, Set<Integer>> findMaxMinD(Map<Integer, Set<Integer>> G,ArrayList<Integer> list){
+    public HashMap<String, Object> findMaxMinD(Map<Integer, Set<Integer>> G,ArrayList<Integer> list){
         int max_core = 0;
         int u = 0;
         int key = 0;
         int i=0;
 
+        HashMap<String, Object> retrunMap = new HashMap<>();
         ListLinearHeap linearHeap = new ListLinearHeap(n,n-1,peer_seq,degree);
 
         while (checkConnection(list, G) && i<n){
+
             HashMap<Integer,Integer> map = linearHeap.pop_min();
             for (Map.Entry<Integer,Integer> entry : map.entrySet()){
                 u = entry.getKey();
@@ -108,7 +110,9 @@ public class Problem2 {
                     //将贪心算法过程中多删除的节点进行回溯，重新加入G中
                     while (u > 0 && core[u] == core[u-1]){
                         u = u-1;
-                        G.put(u,new HashSet<>(list.get(0)));
+                        HashSet<Integer> set = new HashSet<>();
+                        G.put(u,set);
+                        G.get(u).add(list.get(0));
                         G.get(list.get(0)).add(u);
                     }
 
@@ -116,10 +120,15 @@ public class Problem2 {
 
                     while (core[u] == core[u+1]){
                         u = u+1;
-                        G.put(u,new HashSet<>(list.get(0)));
+                        HashSet<Integer> set = new HashSet<>();
+                        G.put(u,set);
+                        G.get(u).add(list.get(0));
                         G.get(list.get(0)).add(u);
                     }
-                    return G;
+
+                    retrunMap.put("queryNode",queryNode);
+                    retrunMap.put("G", G);
+                    return retrunMap;
                 }
             }
 
@@ -132,8 +141,7 @@ public class Problem2 {
             deleteNode(u, G);
             i++;
         }
-
-        return G;
+        return retrunMap;
     }
 
 
@@ -277,17 +285,30 @@ public class Problem2 {
 
     public static void main(String[] args) throws FileNotFoundException {
         Problem2 search = new Problem2();
-        Map<Integer, Set<Integer>> G = search.loadGraph("data/toy1.txt");
+        Map<Integer, Set<Integer>> G = search.loadGraph("data/fb.txt");
         ArrayList<Integer> list = search.loadQueryNode("data/QD1.txt");
+
         long startTime = System.currentTimeMillis();
 
-        Map<Integer, Set<Integer>> maxMinDGraph = search.findMaxMinD(G, list);
+        HashMap<String, Object> maxMinD = search.findMaxMinD(G, list);
+        Map<Integer, Set<Integer>> maxMinDGraph = (Map<Integer, Set<Integer>>) maxMinD.get("G");
         Map<Integer, Set<Integer>> delSepareteGraph = search.delSeparateComponent(list, maxMinDGraph);
 
         long endTime = System.currentTimeMillis();
         long usedTime = endTime - startTime;
-        System.out.println("Solution graph vertices included: " + delSepareteGraph.keySet());
-        System.out.println("Solution graph size is: " + delSepareteGraph.keySet().size());
+
+        int queryNode = (int) maxMinD.get("queryNode");
+        int tempEdgeSize = 0;
+        for (int i : delSepareteGraph.keySet()){
+            tempEdgeSize += delSepareteGraph.get(i).size();
+        }
+        float nodeSize = delSepareteGraph.size();
+        float edgeSize = tempEdgeSize/2;
+        float f = edgeSize / nodeSize;
+
+        System.out.println("Solution graph minimum degree is: "+ search.core[queryNode]);
+        System.out.println("Solution graph density is: " + f);
+        System.out.println("Solution graph size is: " + delSepareteGraph.size());
         System.out.println("Solution used time: " + usedTime);
 
     }
