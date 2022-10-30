@@ -115,7 +115,7 @@ public class CSearch {
         long startTime =  System.currentTimeMillis();
 
         CSearch search = new CSearch();
-        Map<Integer, ArrayList<Integer>> G = search.loadGraph("decomposition/data/toy1.txt"); // use a GitHub path
+        Map<Integer, ArrayList<Integer>> G = search.loadGraph("data/toy1.txt"); // use a GitHub path
         search.coreDecompositionLinearList(G);
 
         long endTime =  System.currentTimeMillis();

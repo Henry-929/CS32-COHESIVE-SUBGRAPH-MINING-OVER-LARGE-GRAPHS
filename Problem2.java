@@ -6,6 +6,8 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.*;
 
+import kcore.decomposition.ListLinearHeap;
+
 public class Problem2 {
     static Integer n;
     Integer m;
@@ -25,9 +27,12 @@ public class Problem2 {
         String[] s = str.split("\\s+");
         n = Integer.valueOf(s[0]);
         m = Integer.valueOf(s[1]);
+        System.out.println("n="+n+",m="+m);
 
+        
         while (sc.hasNextLine()) {
-            Set<Integer> set = new HashSet<>();
+            Set<Integer> set1 = new HashSet<>();
+            Set<Integer> set2 = new HashSet<>();
 
             String str2 = sc.nextLine();
             String[] s2 = str2.split("\\s+");
@@ -36,9 +41,19 @@ public class Problem2 {
             Integer vid1 = Integer.valueOf(s2[1]);
 
             if (G.get(vid0)!= null)
-                set=G.get(vid0);
-            set.add(vid1);
-            G.put(vid0,set);
+                set1=G.get(vid0);
+            set1.add(vid1);
+            G.put(vid0,set1);
+
+            // add edges
+            if(G.get(vid1) != null)
+                set2 = G.get(vid1);        
+            set2.add(vid0);
+            G.put(vid1, set2);
+
+            // System.out.println("vid 0: " + vid0 + "vid1: " +vid1);
+            // System.out.println(G.get(vid0));
+            // System.out.println(G.get(vid1));
         }
         sc.close();
 
@@ -61,12 +76,16 @@ public class Problem2 {
         edges = new int[m*2];
         pstart[0] = 0;
         for (int i=0;i<n;i++){
+            // System.out.println(G.get(i));
+            // System.out.println(G.get(i).size());
             if (G.get(i) != null){
                 int j = 0;
                 for (Integer nei : G.get(i)){
+
                     edges[pstart[i]+j] = nei;
                     j++;
                 }
+
                 pstart[i+1] = pstart[i] + G.get(i).size();
             }else {
                 pstart[i+1] = pstart[i];
@@ -74,6 +93,17 @@ public class Problem2 {
         }
         System.out.println("n="+n+",m="+m+",dMAX="+dMax);
         // 返回图G 数据类型格式是：{(0,{1,2,3}),(1,{2,3})....} 表示点0 与 点1，2，3相邻（直接相连），点1 与点2，3相邻。
+        // try{
+        // }
+        // catch(Exception e){
+            // System.out.println(e);
+            // System.out.println("i: " + i);
+            // System.out.println("j: " + j);
+            // System.out.println("pstart[i]: " + pstart[i]);
+            // System.out.println("pstart length: " + length(pstart));
+            // System.out.println("edges length" + length(edges));
+        // }finally{
+        // }
         return G;
     }
 
@@ -277,7 +307,7 @@ public class Problem2 {
 
     public static void main(String[] args) throws FileNotFoundException {
         Problem2 search = new Problem2();
-        Map<Integer, Set<Integer>> G = search.loadGraph("data/toy1.txt");
+        Map<Integer, Set<Integer>> G = search.loadGraph("testdata/4_deezer.txt");
         ArrayList<Integer> list = search.loadQueryNode("data/QD1.txt");
         long startTime = System.currentTimeMillis();
 
@@ -286,7 +316,7 @@ public class Problem2 {
 
         long endTime = System.currentTimeMillis();
         long usedTime = endTime - startTime;
-        System.out.println("Solution graph vertices included: " + delSepareteGraph.keySet());
+        //System.out.println("Solution graph vertices included: " + delSepareteGraph.keySet());
         System.out.println("Solution graph size is: " + delSepareteGraph.keySet().size());
         System.out.println("Solution used time: " + usedTime);
 

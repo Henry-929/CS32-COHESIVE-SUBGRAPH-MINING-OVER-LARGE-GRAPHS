@@ -5,6 +5,8 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.*;
 
+import kcore.decomposition.ListLinearHeap;
+
 public class Problem4 {
     Integer n,m;
     int[] peer_seq, degree, core, pstart, edges;
@@ -321,7 +323,7 @@ public class Problem4 {
     public static void main(String[] args) throws FileNotFoundException {
 
         Problem4 search = new Problem4();
-        Map<Integer, Set<Integer>> G = search.loadGraph("data/toy1.txt");
+        Map<Integer, Set<Integer>> G = search.loadGraph("testdata/4_deezer.txt");
         ArrayList<Integer> list = search.loadQueryNode("data/QD1.txt");
         int sizeConstraint = 4;
         long startTime =  System.currentTimeMillis();
