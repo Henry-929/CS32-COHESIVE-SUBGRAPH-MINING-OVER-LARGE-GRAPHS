@@ -239,6 +239,60 @@ public class Problem4 {
         return distance;
     }
 
+
+    /**
+     * We need a function to delete all nodes that exceed the distance limit
+     * what we need: bfs to calculate the distance, a set to record nodes and a DISTANCE LIMIT!
+     * @param p1 The query node
+     * @param G
+     * @param d the distance limit
+     * @return nodeSet a set of nodes that exceed the distance limit
+     */
+    public Set<Integer> getDistantNodeSet(int p1, Map<Integer, Set<Integer>> G, int d, ArrayList<Integer> list){
+
+        Queue<Integer> queue = new LinkedList<Integer>(); // 队列，用于BFS搜素
+        int distance = 0;
+        int temp = 0;
+        int queueEnd = 0;
+        Set<Integer> tempCol = new HashSet<>();
+        // visit数组（visit为标志是否访问过的数组,访问过为1，否则为0）
+        int[] visit = new int[n];
+        // isQueueEnd标志节点i是否是某轮bfs广搜的终点，若是，其为true，,需要使distance++
+        boolean[] isQueueEnd = new boolean[n];
+
+        // a set to record distant nodes
+        Set<Integer> nodeSet = new HashSet<>();
+
+        // 初始化，对p1进行设定
+        queue.add(p1);
+        visit[p1] = 1;
+        isQueueEnd[p1]=true;
+
+        while (!queue.isEmpty()) {
+            temp = queue.poll(); // 弹出并保存queue的头元素
+            // 将与queue头元素直接相连，且未访问过的元素入队
+            tempCol = G.get(temp); // tempCol保存头元素对应的关系矩阵行
+            for (int t : tempCol){  // 头元素对应的关系矩阵行，遍历此行中的所有元素，并将其加入队列,同时把其标记为访问过
+                if (visit[t] == 0){
+                    queue.add(t);
+                    visit[t] = 1;
+                    queueEnd = t; // 记录当前队尾
+
+                    // This is a distant node and it is not a distant node
+                    if (distance > d && !list.contains(t)){
+                        nodeSet.add(t);
+                    }
+                }
+            }
+            // 记录当前队尾，并使distance++
+            if (isQueueEnd[temp]) {
+                isQueueEnd[queueEnd]=true;
+                distance++;
+            }
+        }
+        return nodeSet;
+    }
+
     /**
      * 获取距离节点p1在图G中最远的节点（采用BSF算法）
      * @param p1 一个搜索节点 query node
@@ -298,6 +352,32 @@ public class Problem4 {
         return G;
     }
 
+
+    /**
+     * 找到符合 size Constraint 的图G
+     * @param G  表示一个当前步骤的图G
+     * @param sizeConstraint
+     * @param list  表示查询节点 query node 集合
+     */
+
+    public Map<Integer, Set<Integer>> findConstraintG2(Map<Integer, Set<Integer>> G,
+                                                      int sizeConstraint,
+                                                      ArrayList<Integer> list, int d){
+
+        while(checkConnection(list, G) && checkSizeConstraint(sizeConstraint,G)){
+            for(Integer i: list ){
+                Set<Integer> nodeSet = new HashSet<>();
+                nodeSet = getDistantNodeSet(i, G, d, list);
+                for (Integer n: nodeSet){
+                    deleteNode(n, G);  //删除最远距离node
+                }
+            }
+            d--;
+        }
+        return G;                                   
+    }
+
+
     /**
      * 找到符合 size Constraint 的图G
      * @param G  表示一个当前步骤的图G
@@ -347,14 +427,17 @@ public class Problem4 {
     public static void main(String[] args) throws FileNotFoundException {
 
         Problem4 search = new Problem4();
-        Map<Integer, Set<Integer>> G = search.loadGraph("data/fb.txt");
+        Map<Integer, Set<Integer>> G = search.loadGraph("testdata/5_lastfm.txt");
         ArrayList<Integer> list = search.loadQueryNode("data/QD1.txt");
         int sizeConstraint = 30;
+        int distance = G.size();
+        System.out.println(distance);
         long startTime =  System.currentTimeMillis();
 
         Map<Integer, Set<Integer>> maxMinDGraph = search.findMaxMinD(G, list);
         Map<Integer, Set<Integer>> delSepareteGraph = search.delSeparateComponent(list, maxMinDGraph);
-        Map<Integer, Set<Integer>> constraintG = search.findConstraintG(delSepareteGraph, sizeConstraint, list);
+        Map<Integer, Set<Integer>> constraintG = search.findConstraintG2(delSepareteGraph, sizeConstraint, list, distance);
+        // Map<Integer, Set<Integer>> constraintG = search.findConstraintG(delSepareteGraph, sizeConstraint, list);
 
         long endTime =  System.currentTimeMillis();
         long usedTime = endTime-startTime;
