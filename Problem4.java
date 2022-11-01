@@ -347,7 +347,7 @@ public class Problem4 {
     public static void main(String[] args) throws FileNotFoundException {
 
         Problem4 search = new Problem4();
-        Map<Integer, Set<Integer>> G = search.loadGraph("data/fb.txt");
+        Map<Integer, Set<Integer>> G = search.loadGraph("testdata/5_lastfm.txt");
         ArrayList<Integer> list = search.loadQueryNode("data/QD1.txt");
         int sizeConstraint = 30;
         long startTime =  System.currentTimeMillis();

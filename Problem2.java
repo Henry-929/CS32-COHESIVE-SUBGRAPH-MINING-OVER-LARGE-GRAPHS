@@ -295,7 +295,7 @@ public class Problem2 {
 
     public static void main(String[] args) throws FileNotFoundException {
         Problem2 search = new Problem2();
-        Map<Integer, Set<Integer>> G = search.loadGraph("data/fb.txt");
+        Map<Integer, Set<Integer>> G = search.loadGraph("data/toy2.txt");
         ArrayList<Integer> list = search.loadQueryNode("data/QD1.txt");
 
         long startTime = System.currentTimeMillis();
