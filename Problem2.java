@@ -27,8 +27,8 @@ public class Problem2 {
         m = Integer.valueOf(s[1]);
 
         while (sc.hasNextLine()) {
-            Set<Integer> set = new HashSet<>();
-
+            Set<Integer> set1 = new HashSet<>();
+            Set<Integer> set2 = new HashSet<>();
             String str2 = sc.nextLine();
             String[] s2 = str2.split("\\s+");
 
@@ -36,9 +36,16 @@ public class Problem2 {
             Integer vid1 = Integer.valueOf(s2[1]);
 
             if (G.get(vid0)!= null)
-                set=G.get(vid0);
-            set.add(vid1);
-            G.put(vid0,set);
+                set1=G.get(vid0);
+            set1.add(vid1);
+            G.put(vid0,set1);
+
+            // add edges    
+            if(G.get(vid1) != null)
+                set2 = G.get(vid1);        
+            set2.add(vid0);
+            G.put(vid1, set2);
+
         }
         sc.close();
 
