@@ -43,12 +43,11 @@ public class Problem2 {
             set1.add(vid1);
             G.put(vid0,set1);
 
-            // add edges    
+            // add edges
             if(G.get(vid1) != null)
                 set2 = G.get(vid1);        
             set2.add(vid0);
             G.put(vid1, set2);
-
         }
         sc.close();
 
@@ -99,6 +98,7 @@ public class Problem2 {
         int u = 0;
         int key = 0;
         int i=0;
+        int temp = 0;
 
         HashMap<String, Object> retrunMap = new HashMap<>();
         ListLinearHeap linearHeap = new ListLinearHeap(n,n-1,peer_seq,degree);
@@ -152,6 +152,10 @@ public class Problem2 {
             deleteNode(u, G);
             i++;
         }
+
+        //对删除了节点造成query node节点不相连，进行回溯
+        G.put(temp, null);
+        retrunMap.put("G", G);
         return retrunMap;
     }
 
@@ -284,6 +288,10 @@ public class Problem2 {
 
     //删除与query node 不相连的节点
     public  Map<Integer, Set<Integer>> delSeparateComponent(ArrayList<Integer> list,Map<Integer, Set<Integer>> G){
+        if (!checkConnection(list, G)){
+            return G;
+        }
+
         int[] separateComponent = getSeparateComponent(list.get(0), G);
         for (int i=0;i<n;i++){
             if (separateComponent[i]==0){
