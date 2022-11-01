@@ -99,6 +99,7 @@ public class Problem2 {
         int key = 0;
         int i=0;
         int temp = 0;
+        Set<Integer> hashset = null;
 
         HashMap<String, Object> retrunMap = new HashMap<>();
         ListLinearHeap linearHeap = new ListLinearHeap(n,n-1,peer_seq,degree);
@@ -148,13 +149,18 @@ public class Problem2 {
                     linearHeap.decrement(edges[j]);
             }
 
+            temp = u;
+            hashset = G.get(temp);
             //System.out.println("删除的节点是 "+u);
             deleteNode(u, G);
             i++;
         }
 
         //对删除了节点造成query node节点不相连，进行回溯
-        G.put(temp, null);
+        G.put(temp, hashset);
+        for (int p : hashset){
+            G.get(p).add(temp);
+        }
         retrunMap.put("G", G);
         return retrunMap;
     }
@@ -316,19 +322,37 @@ public class Problem2 {
         long endTime = System.currentTimeMillis();
         long usedTime = endTime - startTime;
 
-        int queryNode = (int) maxMinD.get("queryNode");
-        int tempEdgeSize = 0;
-        for (int i : delSepareteGraph.keySet()){
-            tempEdgeSize += delSepareteGraph.get(i).size();
-        }
-        float nodeSize = delSepareteGraph.size();
-        float edgeSize = tempEdgeSize/2;
-        float f = edgeSize / nodeSize;
+        if (maxMinD.get("queryNode") == null){
+            int queryNode = list.get(0);
+            int tempEdgeSize = 0;
+            for (int i : delSepareteGraph.keySet()){
+                tempEdgeSize += delSepareteGraph.get(i).size();
+            }
+            float nodeSize = delSepareteGraph.size();
+            float edgeSize = tempEdgeSize/2;
+            float f = edgeSize / nodeSize;
+//            System.out.println("G now: " + delSepareteGraph);
+            System.out.println("Solution graph minimum degree is: "+ search.degree[queryNode]);
+            System.out.println("Solution graph density is: " + f);
+            System.out.println("Solution graph size is: " + delSepareteGraph.size());
+            System.out.println("Solution used time: " + usedTime);
 
-        System.out.println("Solution graph minimum degree is: "+ search.core[queryNode]);
-        System.out.println("Solution graph density is: " + f);
-        System.out.println("Solution graph size is: " + delSepareteGraph.size());
-        System.out.println("Solution used time: " + usedTime);
+        }else {
+            int queryNode = (int) maxMinD.get("queryNode");
+            int tempEdgeSize = 0;
+            for (int i : delSepareteGraph.keySet()){
+                tempEdgeSize += delSepareteGraph.get(i).size();
+            }
+            float nodeSize = delSepareteGraph.size();
+            float edgeSize = tempEdgeSize/2;
+            float f = edgeSize / nodeSize;
+
+//            System.out.println("G now: " + delSepareteGraph);
+            System.out.println("Solution graph minimum degree is: "+ search.core[queryNode]);
+            System.out.println("Solution graph density is: " + f);
+            System.out.println("Solution graph size is: " + delSepareteGraph.size());
+            System.out.println("Solution used time: " + usedTime);
+        }
 
     }
 }
