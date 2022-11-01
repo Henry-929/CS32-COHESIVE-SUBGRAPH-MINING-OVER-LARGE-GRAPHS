@@ -6,8 +6,6 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.*;
 
-import kcore.decomposition.ListLinearHeap;
-
 public class Problem2 {
     static Integer n;
     Integer m;
@@ -27,10 +25,9 @@ public class Problem2 {
         String[] s = str.split("\\s+");
         n = Integer.valueOf(s[0]);
         m = Integer.valueOf(s[1]);
-        
+
         while (sc.hasNextLine()) {
-            Set<Integer> set1 = new HashSet<>();
-            Set<Integer> set2 = new HashSet<>();
+            Set<Integer> set = new HashSet<>();
 
             String str2 = sc.nextLine();
             String[] s2 = str2.split("\\s+");
@@ -39,15 +36,9 @@ public class Problem2 {
             Integer vid1 = Integer.valueOf(s2[1]);
 
             if (G.get(vid0)!= null)
-                set1=G.get(vid0);
-            set1.add(vid1);
-            G.put(vid0,set1);
-
-            // add edges
-            if(G.get(vid1) != null)
-                set2 = G.get(vid1);        
-            set2.add(vid0);
-            G.put(vid1, set2);
+                set=G.get(vid0);
+            set.add(vid1);
+            G.put(vid0,set);
         }
         sc.close();
 
@@ -76,7 +67,6 @@ public class Problem2 {
                     edges[pstart[i]+j] = nei;
                     j++;
                 }
-
                 pstart[i+1] = pstart[i] + G.get(i).size();
             }else {
                 pstart[i+1] = pstart[i];
@@ -98,6 +88,7 @@ public class Problem2 {
         int u = 0;
         int key = 0;
         int i=0;
+        int temp = 0;
 
         HashMap<String, Object> retrunMap = new HashMap<>();
         ListLinearHeap linearHeap = new ListLinearHeap(n,n-1,peer_seq,degree);
@@ -151,6 +142,10 @@ public class Problem2 {
             deleteNode(u, G);
             i++;
         }
+
+        //对删除了节点造成query node节点不相连，进行回溯
+        G.put(temp, null);
+        retrunMap.put("G", G);
         return retrunMap;
     }
 
@@ -283,6 +278,10 @@ public class Problem2 {
 
     //删除与query node 不相连的节点
     public  Map<Integer, Set<Integer>> delSeparateComponent(ArrayList<Integer> list,Map<Integer, Set<Integer>> G){
+        if (!checkConnection(list, G)){
+            return G;
+        }
+
         int[] separateComponent = getSeparateComponent(list.get(0), G);
         for (int i=0;i<n;i++){
             if (separateComponent[i]==0){
@@ -295,7 +294,7 @@ public class Problem2 {
 
     public static void main(String[] args) throws FileNotFoundException {
         Problem2 search = new Problem2();
-        Map<Integer, Set<Integer>> G = search.loadGraph("data/fb.txt");
+        Map<Integer, Set<Integer>> G = search.loadGraph("testdata/5_lastfm.txt");
         ArrayList<Integer> list = search.loadQueryNode("data/QD1.txt");
 
         long startTime = System.currentTimeMillis();
