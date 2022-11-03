@@ -434,7 +434,9 @@ public class Problem4 {
         System.out.println(distance);
         long startTime =  System.currentTimeMillis();
 
-        Map<Integer, Set<Integer>> maxMinDGraph = search.findMaxMinD(G, list);
+
+        HashMap<String, Object> maxMinD = search.findMaxMinD2(G, list);
+        Map<Integer, Set<Integer>> maxMinDGraph = (Map<Integer, Set<Integer>>) maxMinD.get("G");
         Map<Integer, Set<Integer>> delSepareteGraph = search.delSeparateComponent(list, maxMinDGraph);
         Map<Integer, Set<Integer>> constraintG = search.findConstraintG2(delSepareteGraph, sizeConstraint, list, distance);
         // Map<Integer, Set<Integer>> constraintG = search.findConstraintG(delSepareteGraph, sizeConstraint, list);
