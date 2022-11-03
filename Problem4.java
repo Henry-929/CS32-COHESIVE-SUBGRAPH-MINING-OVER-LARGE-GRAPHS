@@ -79,6 +79,88 @@ public class Problem4 {
         return G;
     }
 
+
+/**
+     * 找到满足 Maximizing the minimum degree 的图 G
+     * @param G 表示一个当前步骤的图G
+     * @param list 表示查询节点 query node 集合
+     * @return 返回找到符合条件的 Maximizing the minimum degree的图 G
+     */
+    public HashMap<String, Object> findMaxMinD2(Map<Integer, Set<Integer>> G,ArrayList<Integer> list){
+        int max_core = 0;
+        int u = 0;
+        int key = 0;
+        int i=0;
+        int temp = 0;
+        Set<Integer> hashset = null;
+
+        HashMap<String, Object> retrunMap = new HashMap<>();
+        ListLinearHeap linearHeap = new ListLinearHeap(n,n-1,peer_seq,degree);
+
+        while (checkConnection(list, G) && i<n){
+
+            HashMap<Integer,Integer> map = linearHeap.pop_min();
+            for (Map.Entry<Integer,Integer> entry : map.entrySet()){
+                u = entry.getKey();
+                key = entry.getValue();
+            }
+
+            if (key > max_core)
+                max_core = key;
+            peer_seq[i] = u;
+            core[u] = max_core;
+
+            for(int queryNode : list){
+                if (queryNode == u){
+                    //将贪心算法过程中多删除的节点进行回溯，重新加入G中
+                    while (u > 0 && core[u] == core[u-1]){
+                        u = u-1;
+                        HashSet<Integer> set = new HashSet<>();
+                        G.put(u,set);
+                        G.get(u).add(list.get(0));
+                        G.get(list.get(0)).add(u);
+                    }
+
+                    u=queryNode;
+
+                    while (core[u] == core[u+1]){
+                        u = u+1;
+                        HashSet<Integer> set = new HashSet<>();
+                        G.put(u,set);
+                        G.get(u).add(list.get(0));
+                        G.get(list.get(0)).add(u);
+                    }
+
+                    retrunMap.put("queryNode",queryNode);
+                    retrunMap.put("G", G);
+                    return retrunMap;
+                }
+            }
+
+            for (int j=pstart[u]; j<pstart[u+1];j++){
+                if (core[edges[j]] == 0)
+                    linearHeap.decrement(edges[j]);
+            }
+
+            temp = u;
+            hashset = G.get(temp);
+            //System.out.println("删除的节点是 "+u);
+            deleteNode(u, G);
+            i++;
+        }
+
+        //对删除了节点造成query node节点不相连，进行回溯
+        G.put(temp, hashset);
+        for (int p : hashset){
+            G.get(p).add(temp);
+        }
+        retrunMap.put("G", G);
+        return retrunMap;
+    }
+
+
+
+
     /**
      * 找到满足 Maximizing the minimum degree 的图 G
      * @param G 表示一个当前步骤的图G
