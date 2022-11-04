@@ -1,10 +1,9 @@
-package kcore;
+package kcore.decomposition;
 
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
+import java.io.*;
 import java.util.*;
+
 
 import kcore.decomposition.ListLinearHeap;
 
@@ -307,11 +306,76 @@ public class Problem2 {
         return G;
     }
 
+    public static void randomQN(int sizeQ, Map<Integer, Set<Integer>> G) throws IOException {{
+        Random rand = new Random();
 
-    public static void main(String[] args) throws FileNotFoundException {
+        //generate rand query nodes for size=1
+        int rand1 = rand.nextInt(G.size()-1);
+        int rand2, rand3;
+        Writer wr = new FileWriter("data/QD1.txt");
+
+        if(sizeQ == 1){
+            wr.write(Integer.toString(rand1));
+        }
+        else if(sizeQ ==2){
+            if(G.get(rand1).size()>=2){
+                for(int i:G.get(rand1)){
+                    rand2 = i;
+                    wr.write(Integer.toString(rand1));
+                    wr.write(","+Integer.toString(rand2));
+                    break;
+                }
+            }
+            else{
+                System.out.println("Size not greater than 2, try another random value!");
+            }
+        }
+        else if(sizeQ ==3){
+            int tp = 0;
+            List<Integer> randL = new ArrayList<>();
+            if(G.get(rand1).size()>=3){
+                for(int i:G.get(rand1)) {
+                    randL.add(i);
+                    tp++;
+                    if (tp == 2) {
+                        break;
+                    }
+                }
+//                System.out.println("listL: "+randL);
+                wr.write(Integer.toString(rand1));
+                wr.write(","+Integer.toString(randL.get(0)));
+                wr.write(","+Integer.toString(randL.get(1)));
+
+            }
+            else{
+                System.out.println("Size not greater than 3, try another random value!");
+            }
+        }
+        else{
+            System.out.println("Error!");
+        }
+        wr.close();
+
+
+    }}
+
+    public static void main(String[] args) throws IOException {
         Problem2 search = new Problem2();
+
+        Scanner scan = new Scanner(System.in);
+        System.out.println("Input query nodes size: ");
+        int sizeQ = scan.nextInt();
+        scan.close();
+
+
         Map<Integer, Set<Integer>> G = search.loadGraph("data/fb.txt");
+//        Map<Integer, Set<Integer>> G = search.loadGraph("testData/1_fb.txt");
+        randomQN(sizeQ,G);
+
+
         ArrayList<Integer> list = search.loadQueryNode("data/QD1.txt");
+
+
 
         long startTime = System.currentTimeMillis();
 
@@ -319,8 +383,11 @@ public class Problem2 {
         Map<Integer, Set<Integer>> maxMinDGraph = (Map<Integer, Set<Integer>>) maxMinD.get("G");
         Map<Integer, Set<Integer>> delSepareteGraph = search.delSeparateComponent(list, maxMinDGraph);
 
+//        System.out.println("Output G: "+ delSepareteGraph.keySet());
+
         long endTime = System.currentTimeMillis();
         long usedTime = endTime - startTime;
+
 
         if (maxMinD.get("queryNode") == null){
             int queryNode = list.get(0);
