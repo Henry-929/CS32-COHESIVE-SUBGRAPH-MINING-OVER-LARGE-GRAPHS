@@ -1,8 +1,6 @@
 package kcore;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
+import java.io.*;
 import java.util.*;
 
 import kcore.decomposition.ListLinearHeap;
@@ -471,11 +469,11 @@ public class Problem4 {
                     deleteNode(n, G);  //删除最远距离node
                 }
             }
-            System.out.println("Current Size: " + G.keySet().size());
-            System.out.println("Current distance constraint: " + (d+1));
+//            System.out.println("Current Size: " + G.keySet().size());
+//            System.out.println("Current distance constraint: " + (d+1));
             d--;
         }
-        System.out.println("final distance constraint: "+ (d+2) );
+        System.out.println("Final distance constraint: "+ (d+2) );
         return G;                                   
     }
 
@@ -485,6 +483,7 @@ public class Problem4 {
      * @param G  表示一个当前步骤的图G
      * @param sizeConstraint
      * @param list  表示查询节点 query node 集合
+     *
      */
     public Map<Integer, Set<Integer>> findConstraintG(Map<Integer, Set<Integer>> G,
                                                       int sizeConstraint,
@@ -525,15 +524,67 @@ public class Problem4 {
         return true;
     }
 
+    public static void randomQN(int sizeQ, Map<Integer, Set<Integer>> G) throws IOException {{
+        Random rand = new Random();
+        int rand1 = rand.nextInt(G.size()-1);
+        int rand2, rand3;
+        Writer wr = new FileWriter("data/QD1.txt");
+        //generate rand query nodes for size=1
+        if(sizeQ == 1){
+            wr.write(Integer.toString(rand1));
+        }
+        else if(sizeQ ==2){      //generate rand query nodes for size=2
+            if(G.get(rand1).size()>=2){
+                for(int i:G.get(rand1)){
+                    rand2 = i;
+                    wr.write(Integer.toString(rand1));
+                    wr.write(","+Integer.toString(rand2));
+                    break;
+                }
+            }
+            else{
+                System.out.println("Size not greater than 2, try another random value!");
+            }
+        }
+        else if(sizeQ ==3){     //generate rand query nodes for size=3
+            int tp = 0;
+            List<Integer> randL = new ArrayList<>();
+            if(G.get(rand1).size()>=3){
+                for(int i:G.get(rand1)) {
+                    randL.add(i);
+                    tp++;
+                    if (tp == 2) {
+                        break;
+                    }
+                }
+                wr.write(Integer.toString(rand1));
+                wr.write(","+Integer.toString(randL.get(0)));
+                wr.write(","+Integer.toString(randL.get(1)));
+            }
+            else{
+                System.out.println("Size not greater than 3, try another random value!");
+            }
+        }
+        else{
+            System.out.println("Error!");
+        }
+        wr.close();
+    }}
 
-    public static void main(String[] args) throws FileNotFoundException {
-
+    public static void main(String[] args) throws IOException {
         Problem4 search = new Problem4();
-        Map<Integer, Set<Integer>> G = search.loadGraph("testdata/4_deezer.txt");
+
+//        Scanner scan = new Scanner(System.in);
+//        System.out.println("Input query nodes size: ");
+        int sizeQ = 1;
+//        scan.close();
+
+        Map<Integer, Set<Integer>> G = search.loadGraph("testdata/4_youtube.txt");
+        randomQN(sizeQ,G);
         ArrayList<Integer> list = search.loadQueryNode("data/QD1.txt");
         int sizeConstraint = 50;
         int distance = G.size();
-        System.out.println(distance);
+//        System.out.println(distance);
         long startTime =  System.currentTimeMillis();
 
 
