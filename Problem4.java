@@ -6,6 +6,7 @@ import java.io.FileReader;
 import java.util.*;
 
 import kcore.decomposition.ListLinearHeap;
+import kcore.decomposition.delSeparateGraph;;
 
 public class Problem4 {
     Integer n,m;
@@ -80,7 +81,7 @@ public class Problem4 {
     }
 
 
-/**
+    /**
      * 找到满足 Maximizing the minimum degree 的图 G
      * @param G 表示一个当前步骤的图G
      * @param list 表示查询节点 query node 集合
@@ -433,6 +434,22 @@ public class Problem4 {
         }
         return G;
     }
+    
+    //删除与query node 不相连的节点
+    public  delSeparateGraph delSeparateComponent2(ArrayList<Integer> list,Map<Integer, Set<Integer>> G){
+        HashMap<String, Object> separateMap =  getFarthestNode(list.get(0), G);
+        int[] separateComponent = (int[])separateMap.get("visitArray");
+        int distance = (int) separateMap.get("fartdistance");
+        // int[] separateComponent = (int[]) getFarthestNode(list.get(0), G).get("visitArray");
+        // int distance = (int)getFarthestNode(list.get(0), G).get("fartdistance");
+        for (int i=0;i<n;i++){
+            if (separateComponent[i]==0){
+                deleteNode(i,G);
+            }
+        }
+        return new delSeparateGraph(G, distance);
+    }
+
 
 
     /**
@@ -454,8 +471,11 @@ public class Problem4 {
                     deleteNode(n, G);  //删除最远距离node
                 }
             }
+            System.out.println("Current Size: " + G.keySet().size());
+            System.out.println("Current distance constraint: " + (d+1));
             d--;
         }
+        System.out.println("final distance constraint: "+ (d+2) );
         return G;                                   
     }
 
@@ -509,9 +529,9 @@ public class Problem4 {
     public static void main(String[] args) throws FileNotFoundException {
 
         Problem4 search = new Problem4();
-        Map<Integer, Set<Integer>> G = search.loadGraph("testdata/5_lastfm.txt");
+        Map<Integer, Set<Integer>> G = search.loadGraph("testdata/4_deezer.txt");
         ArrayList<Integer> list = search.loadQueryNode("data/QD1.txt");
-        int sizeConstraint = 30;
+        int sizeConstraint = 50;
         int distance = G.size();
         System.out.println(distance);
         long startTime =  System.currentTimeMillis();
@@ -519,7 +539,11 @@ public class Problem4 {
 
         HashMap<String, Object> maxMinD = search.findMaxMinD2(G, list);
         Map<Integer, Set<Integer>> maxMinDGraph = (Map<Integer, Set<Integer>>) maxMinD.get("G");
-        Map<Integer, Set<Integer>> delSepareteGraph = search.delSeparateComponent(list, maxMinDGraph);
+        // Map<Integer, Set<Integer>> delSepareteGraph = search.delSeparateComponent(list, maxMinDGraph);
+        
+        delSeparateGraph delSeparateGraphResults = search.delSeparateComponent2(list, maxMinDGraph);
+        Map<Integer,Set<Integer>> delSepareteGraph = delSeparateGraphResults.getG();
+        distance = delSeparateGraphResults.getDistance();
         Map<Integer, Set<Integer>> constraintG = search.findConstraintG2(delSepareteGraph, sizeConstraint, list, distance);
         // Map<Integer, Set<Integer>> constraintG = search.findConstraintG(delSepareteGraph, sizeConstraint, list);
 
