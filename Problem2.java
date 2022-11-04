@@ -1,10 +1,9 @@
-package kcore;
+package kcore.decomposition;
 
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
+import java.io.*;
 import java.util.*;
+import java.util.Random;
 
 import kcore.decomposition.ListLinearHeap;
 
@@ -308,10 +307,26 @@ public class Problem2 {
     }
 
 
-    public static void main(String[] args) throws FileNotFoundException {
+    public static void main(String[] args) throws IOException {
         Problem2 search = new Problem2();
-        Map<Integer, Set<Integer>> G = search.loadGraph("data/fb.txt");
+        Random rand = new Random();
+
+//        Map<Integer, Set<Integer>> G = search.loadGraph("data/fb.txt");
+        Map<Integer, Set<Integer>> G = search.loadGraph("testData/1_fb.txt");
+        //generate rand query nodes for size=1
+        int rand1 = rand.nextInt(G.size()-1);
+
+//        int rand2 = G.get(rand1);
+//        int rand3 = rand2+1;
+        Writer wr = new FileWriter("data/Q1.txt");
+        wr.write(Integer.toString(rand1));
+//        wr.write(","+Integer.toString(rand2));
+//        wr.write(","+Integer.toString(rand3));
+        wr.close();
+
         ArrayList<Integer> list = search.loadQueryNode("data/QD1.txt");
+
+
 
         long startTime = System.currentTimeMillis();
 
@@ -319,8 +334,11 @@ public class Problem2 {
         Map<Integer, Set<Integer>> maxMinDGraph = (Map<Integer, Set<Integer>>) maxMinD.get("G");
         Map<Integer, Set<Integer>> delSepareteGraph = search.delSeparateComponent(list, maxMinDGraph);
 
+//        System.out.println("Output G: "+ delSepareteGraph.keySet());
+
         long endTime = System.currentTimeMillis();
         long usedTime = endTime - startTime;
+
 
         if (maxMinD.get("queryNode") == null){
             int queryNode = list.get(0);
