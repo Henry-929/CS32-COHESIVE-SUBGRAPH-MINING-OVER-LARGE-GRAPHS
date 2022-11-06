@@ -579,7 +579,7 @@ public class Problem4 {
         int sizeQ = 1;
 //        scan.close();
 
-        Map<Integer, Set<Integer>> G = search.loadGraph("testdata/4_youtube.txt");
+        Map<Integer, Set<Integer>> G = search.loadGraph("testdata/4_deezer.txt");
         randomQN(sizeQ,G);
         ArrayList<Integer> list = search.loadQueryNode("data/QD1.txt");
         int sizeConstraint = 50;
