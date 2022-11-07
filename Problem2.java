@@ -369,7 +369,6 @@ public class Problem2 {
 
 
         Map<Integer, Set<Integer>> G = search.loadGraph("data/fb.txt");
-//        Map<Integer, Set<Integer>> G = search.loadGraph("testData/1_fb.txt");
         randomQN(sizeQ,G);
 
 

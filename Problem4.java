@@ -529,7 +529,7 @@ public class Problem4 {
     public static void main(String[] args) throws FileNotFoundException {
 
         Problem4 search = new Problem4();
-        Map<Integer, Set<Integer>> G = search.loadGraph("testdata/4_deezer.txt");
+        Map<Integer, Set<Integer>> G = search.loadGraph("testdata/deezer.txt");
         ArrayList<Integer> list = search.loadQueryNode("data/QD1.txt");
         int sizeConstraint = 50;
         int distance = G.size();
