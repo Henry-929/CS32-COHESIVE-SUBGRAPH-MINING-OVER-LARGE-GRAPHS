@@ -120,6 +120,7 @@ public class ListLinearHeap {
 
     public int decrement(int id) {
         int dec = 1;
+        // System.out.println("node: "+ id+ " key: "+ this.keys[id]);
         int new_key = this.keys[id] - dec;
         this.remove(id);
         this.insert(id, new_key);

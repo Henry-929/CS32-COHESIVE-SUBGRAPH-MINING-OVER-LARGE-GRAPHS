@@ -1,8 +1,6 @@
 package kcore;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
+import java.io.*;
 import java.util.*;
 
 import kcore.decomposition.ListLinearHeap;
@@ -80,6 +78,43 @@ public class Problem4 {
         return G;
     }
 
+    /**
+     * 重新计算degree等各类参数
+     * @param tempGraph 
+    */
+    public void calDegree(Map<Integer, Set<Integer>> tempGraph){
+
+        peer_seq = new int[n];
+        degree = new int[n];
+        core = new int[n];
+        int dMax = 0;
+        for (int i=0; i<n ; i++){
+            peer_seq[i] = i;
+            if (tempGraph.get(i) != null){
+                degree[i] = tempGraph.get(i).size();
+                if (degree[i]>dMax)
+                    dMax = degree[i];
+            }else {
+                degree[i] = 0;
+            }
+        }
+
+        pstart = new int[n+1];
+        edges = new int[m*2];
+        pstart[0] = 0;
+        for (int i=0;i<n;i++){
+            if (tempGraph.get(i) != null){
+                int j = 0;
+                for (Integer nei : tempGraph.get(i)){
+                    edges[pstart[i]+j] = nei;
+                    j++;
+                }
+                pstart[i+1] = pstart[i] + tempGraph.get(i).size();
+            }else {
+                pstart[i+1] = pstart[i];
+            }
+        }
+    }
 
     /**
      * 找到满足 Maximizing the minimum degree 的图 G
@@ -140,12 +175,13 @@ public class Problem4 {
 
             for (int j=pstart[u]; j<pstart[u+1];j++){
                 if (core[edges[j]] == 0)
+                    // System.out.println("Edges: "+ edges[j]);
                     linearHeap.decrement(edges[j]);
             }
 
             temp = u;
             hashset = G.get(temp);
-            //System.out.println("删除的节点是 "+u);
+            // System.out.println("删除的节点是 "+u);
             deleteNode(u, G);
             i++;
         }
@@ -351,10 +387,17 @@ public class Problem4 {
         visit[p1] = 1;
         isQueueEnd[p1]=true;
 
+        // System.out.println(G.get(193).size());
         while (!queue.isEmpty()) {
             temp = queue.poll(); // 弹出并保存queue的头元素
             // 将与queue头元素直接相连，且未访问过的元素入队
+            
+            
             tempCol = G.get(temp); // tempCol保存头元素对应的关系矩阵行
+            if(tempCol == null){
+                System.out.println(temp);
+
+            }
             for (int t : tempCol){  // 头元素对应的关系矩阵行，遍历此行中的所有元素，并将其加入队列,同时把其标记为访问过
                 if (visit[t] == 0){
                     queue.add(t);
@@ -450,6 +493,68 @@ public class Problem4 {
         return new delSeparateGraph(G, distance);
     }
 
+     /**
+     * 找到符合 size Constraint 的图G, 每次根据距离批量删除点后，需要再次调用Greedy算法
+     * @param G  表示一个当前步骤的图G
+     * @param sizeConstraint
+     * @param list  表示查询节点 query node 集合
+     */
+
+    public Map<Integer, Set<Integer>> findConstraintG3(Map<Integer, Set<Integer>> G,
+                                                        Map<Integer, Set<Integer>> OriginG,
+                                                      int sizeConstraint,
+                                                      ArrayList<Integer> list, int distance, Problem4 search){
+
+        while(checkConnection(list, G) && checkSizeConstraint(sizeConstraint,G)){
+
+            // 重新补充边至图中
+            Map<Integer, Set<Integer>> tempG = new HashMap<>();
+            for  (int i : G.keySet()){
+                HashSet<Integer> set = new HashSet<>();
+                for(int v : OriginG.get(i)){
+                    if(G.keySet().contains(v)){
+                        set.add(v);
+                    }
+                }
+                // if(i == 193){
+                //     System.out.println(set);
+                // }
+                // if(set.size() == 0){
+                //     System.out.println(i);
+                // }
+                tempG.put(i, set);
+            }
+
+
+            for(Integer i: list ){
+                Set<Integer> nodeSet = new HashSet<>();
+                nodeSet = getDistantNodeSet(i, tempG, distance, list);
+                for (Integer n: nodeSet){
+                    deleteNode(n, tempG);  //删除最远距离node
+                }
+            }
+
+//            System.out.println("Current Size: " + G.keySet().size());
+//            System.out.println("Current distance constraint: " + (d+1));
+            distance--;
+
+            // 调用Greedy算法
+            System.out.println("Greedy Again");
+            calDegree(tempG);
+            System.out.println("End calDegree");
+            HashMap<String, Object> maxMinD = search.findMaxMinD2(tempG, list);
+            Map<Integer, Set<Integer>> maxMinDGraph = (Map<Integer, Set<Integer>>) maxMinD.get("G");
+            delSeparateGraph delSeparateGraphResults = search.delSeparateComponent2(list, maxMinDGraph);
+            Map<Integer,Set<Integer>> delSepareteGraph = delSeparateGraphResults.getG();
+            distance = delSeparateGraphResults.getDistance()-2 ;
+            System.out.println("distance: "+distance);
+            G = delSepareteGraph;
+            System.out.println(G.size());
+        }
+        System.out.println("Final distance constraint: "+ (distance+2) );
+        return G;                                   
+    }
+
 
 
     /**
@@ -471,11 +576,11 @@ public class Problem4 {
                     deleteNode(n, G);  //删除最远距离node
                 }
             }
-            System.out.println("Current Size: " + G.keySet().size());
-            System.out.println("Current distance constraint: " + (d+1));
+//            System.out.println("Current Size: " + G.keySet().size());
+//            System.out.println("Current distance constraint: " + (d+1));
             d--;
         }
-        System.out.println("final distance constraint: "+ (d+2) );
+        System.out.println("Final distance constraint: "+ (d+2) );
         return G;                                   
     }
 
@@ -485,6 +590,7 @@ public class Problem4 {
      * @param G  表示一个当前步骤的图G
      * @param sizeConstraint
      * @param list  表示查询节点 query node 集合
+     *
      */
     public Map<Integer, Set<Integer>> findConstraintG(Map<Integer, Set<Integer>> G,
                                                       int sizeConstraint,
@@ -525,27 +631,93 @@ public class Problem4 {
         return true;
     }
 
+    public static void randomQN(int sizeQ, Map<Integer, Set<Integer>> G) throws IOException {{
+        Random rand = new Random();
+        int rand1 = rand.nextInt(G.size()-1);
+        int rand2, rand3;
+        Writer wr = new FileWriter("data/QD1.txt");
+        //generate rand query nodes for size=1
+        if(sizeQ == 1){
+            wr.write(Integer.toString(rand1));
+        }
+        else if(sizeQ ==2){      //generate rand query nodes for size=2
+            if(G.get(rand1).size()>=2){
+                for(int i:G.get(rand1)){
+                    rand2 = i;
+                    wr.write(Integer.toString(rand1));
+                    wr.write(","+Integer.toString(rand2));
+                    break;
+                }
+            }
+            else{
+                System.out.println("Size not greater than 2, try another random value!");
+            }
+        }
+        else if(sizeQ ==3){     //generate rand query nodes for size=3
+            int tp = 0;
+            List<Integer> randL = new ArrayList<>();
+            if(G.get(rand1).size()>=3){
+                for(int i:G.get(rand1)) {
+                    randL.add(i);
+                    tp++;
+                    if (tp == 2) {
+                        break;
+                    }
+                }
+                wr.write(Integer.toString(rand1));
+                wr.write(","+Integer.toString(randL.get(0)));
+                wr.write(","+Integer.toString(randL.get(1)));
+            }
+            else{
+                System.out.println("Size not greater than 3, try another random value!");
+            }
+        }
+        else{
+            System.out.println("Error!");
+        }
+        wr.close();
+    }}
 
-    public static void main(String[] args) throws FileNotFoundException {
-
+    public static void main(String[] args) throws IOException {
         Problem4 search = new Problem4();
-        Map<Integer, Set<Integer>> G = search.loadGraph("testdata/deezer.txt");
+
+//        Scanner scan = new Scanner(System.in);
+//        System.out.println("Input query nodes size: ");
+        int sizeQ = 1;
+//        scan.close();
+
+        Map<Integer, Set<Integer>> G = search.loadGraph("data/fb.txt");
+        // randomQN(sizeQ,G);
         ArrayList<Integer> list = search.loadQueryNode("data/QD1.txt");
         int sizeConstraint = 50;
         int distance = G.size();
-        System.out.println(distance);
+//        System.out.println(distance);
+
+        Map<Integer, Set<Integer>> OriginG = new HashMap<Integer, Set<Integer>>();
+
+        System.out.println("begin deep copy");
+        for  (int i : G.keySet()){
+            HashSet<Integer> set = new HashSet<>();
+            for(int v : G.get(i)){
+                set.add(v);
+            }
+            OriginG.put(i, set);
+        }
+        System.out.println("end deep copy");
+
+
         long startTime =  System.currentTimeMillis();
 
-
+        // Begin first Greedy
         HashMap<String, Object> maxMinD = search.findMaxMinD2(G, list);
         Map<Integer, Set<Integer>> maxMinDGraph = (Map<Integer, Set<Integer>>) maxMinD.get("G");
-        // Map<Integer, Set<Integer>> delSepareteGraph = search.delSeparateComponent(list, maxMinDGraph);
-        
         delSeparateGraph delSeparateGraphResults = search.delSeparateComponent2(list, maxMinDGraph);
         Map<Integer,Set<Integer>> delSepareteGraph = delSeparateGraphResults.getG();
         distance = delSeparateGraphResults.getDistance();
-        Map<Integer, Set<Integer>> constraintG = search.findConstraintG2(delSepareteGraph, sizeConstraint, list, distance);
-        // Map<Integer, Set<Integer>> constraintG = search.findConstraintG(delSepareteGraph, sizeConstraint, list);
+        // End first Greedy
+
+        // Map<Integer, Set<Integer>> constraintG = search.findConstraintG2(delSepareteGraph, sizeConstraint, list, distance);
+        Map<Integer, Set<Integer>> constraintG = search.findConstraintG3(delSepareteGraph, OriginG, sizeConstraint, list, distance, search);
 
         long endTime =  System.currentTimeMillis();
         long usedTime = endTime-startTime;
@@ -565,6 +737,7 @@ public class Problem4 {
         float edgeSize = tempEdgeSize/2;
         float f = edgeSize / nodeSize;
 
+        System.out.println("Solution Graph is: " + constraintG.keySet());
         System.out.println("Solution graph minimum degree is: "+ tempDegree);
         System.out.println("Solution graph density is: " + f);
         System.out.println("Solution graph size is: " + constraintG.size());

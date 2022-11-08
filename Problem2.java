@@ -4,9 +4,6 @@ package kcore.decomposition;
 import java.io.*;
 import java.util.*;
 
-
-import kcore.decomposition.ListLinearHeap;
-
 public class Problem2 {
     static Integer n;
     Integer m;
@@ -308,16 +305,14 @@ public class Problem2 {
 
     public static void randomQN(int sizeQ, Map<Integer, Set<Integer>> G) throws IOException {{
         Random rand = new Random();
-
-        //generate rand query nodes for size=1
         int rand1 = rand.nextInt(G.size()-1);
         int rand2, rand3;
         Writer wr = new FileWriter("data/QD1.txt");
-
+        //generate rand query nodes for size=1
         if(sizeQ == 1){
             wr.write(Integer.toString(rand1));
         }
-        else if(sizeQ ==2){
+        else if(sizeQ ==2){      //generate rand query nodes for size=2
             if(G.get(rand1).size()>=2){
                 for(int i:G.get(rand1)){
                     rand2 = i;
@@ -330,7 +325,7 @@ public class Problem2 {
                 System.out.println("Size not greater than 2, try another random value!");
             }
         }
-        else if(sizeQ ==3){
+        else if(sizeQ ==3){     //generate rand query nodes for size=3
             int tp = 0;
             List<Integer> randL = new ArrayList<>();
             if(G.get(rand1).size()>=3){
@@ -341,11 +336,9 @@ public class Problem2 {
                         break;
                     }
                 }
-//                System.out.println("listL: "+randL);
                 wr.write(Integer.toString(rand1));
                 wr.write(","+Integer.toString(randL.get(0)));
                 wr.write(","+Integer.toString(randL.get(1)));
-
             }
             else{
                 System.out.println("Size not greater than 3, try another random value!");
@@ -355,8 +348,6 @@ public class Problem2 {
             System.out.println("Error!");
         }
         wr.close();
-
-
     }}
 
     public static void main(String[] args) throws IOException {
@@ -368,8 +359,9 @@ public class Problem2 {
         scan.close();
 
 
-        Map<Integer, Set<Integer>> G = search.loadGraph("data/fb.txt");
-        randomQN(sizeQ,G);
+        Map<Integer, Set<Integer>> G = search.loadGraph("data/toy2.txt");
+
+        // randomQN(sizeQ,G);
 
 
         ArrayList<Integer> list = search.loadQueryNode("data/QD1.txt");
