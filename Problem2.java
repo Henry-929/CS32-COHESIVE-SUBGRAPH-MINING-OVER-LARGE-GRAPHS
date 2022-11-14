@@ -126,7 +126,8 @@ public class Problem2 {
 
                     u=queryNode;
 
-                    while (core[u] == core[u+1]){
+
+                    while (u != n-1 && core[u] == core[u+1]){
                         u = u+1;
                         HashSet<Integer> set = new HashSet<>();
                         G.put(u,set);

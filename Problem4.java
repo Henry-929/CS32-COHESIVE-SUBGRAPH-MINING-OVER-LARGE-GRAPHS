@@ -516,12 +516,6 @@ public class Problem4 {
                         set.add(v);
                     }
                 }
-                // if(i == 193){
-                //     System.out.println(set);
-                // }
-                // if(set.size() == 0){
-                //     System.out.println(i);
-                // }
                 tempG.put(i, set);
             }
 
@@ -533,15 +527,16 @@ public class Problem4 {
                     deleteNode(n, tempG);  //删除最远距离node
                 }
             }
+            System.out.println("Current size after delete based on distance: " + tempG.size());
 
 //            System.out.println("Current Size: " + G.keySet().size());
 //            System.out.println("Current distance constraint: " + (d+1));
             distance--;
 
             // 调用Greedy算法
-            System.out.println("Greedy Again");
+            // System.out.println("Greedy Again");
             calDegree(tempG);
-            System.out.println("End calDegree");
+            // System.out.println("End calDegree");
             HashMap<String, Object> maxMinD = search.findMaxMinD2(tempG, list);
             Map<Integer, Set<Integer>> maxMinDGraph = (Map<Integer, Set<Integer>>) maxMinD.get("G");
             delSeparateGraph delSeparateGraphResults = search.delSeparateComponent2(list, maxMinDGraph);
@@ -549,7 +544,7 @@ public class Problem4 {
             distance = delSeparateGraphResults.getDistance()-2 ;
             System.out.println("distance: "+distance);
             G = delSepareteGraph;
-            System.out.println(G.size());
+            System.out.println("Current size after Greedy algorithm: "+ G.size());
         }
         System.out.println("Final distance constraint: "+ (distance+2) );
         return G;                                   
@@ -686,7 +681,7 @@ public class Problem4 {
         int sizeQ = 1;
 //        scan.close();
 
-        Map<Integer, Set<Integer>> G = search.loadGraph("data/fb.txt");
+        Map<Integer, Set<Integer>> G = search.loadGraph("testdata/5_co-author-network7.txt");
         // randomQN(sizeQ,G);
         ArrayList<Integer> list = search.loadQueryNode("data/QD1.txt");
         int sizeConstraint = 50;
